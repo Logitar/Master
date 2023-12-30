@@ -13,7 +13,7 @@ public record TextSearch
   /// <summary>
   /// Gets or sets the search operator.
   /// </summary>
-  public QueryOperator Operator { get; set; }
+  public SearchOperator Operator { get; set; }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="TextSearch"/> class.
@@ -26,7 +26,7 @@ public record TextSearch
   /// </summary>
   /// <param name="terms">The search terms.</param>
   /// <param name="operator">The search operator.</param>
-  public TextSearch(IEnumerable<SearchTerm> terms, QueryOperator @operator = QueryOperator.And)
+  public TextSearch(IEnumerable<SearchTerm> terms, SearchOperator @operator = SearchOperator.And)
   {
     Terms = terms.ToList();
     Operator = @operator;

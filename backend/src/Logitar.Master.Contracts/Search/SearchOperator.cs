@@ -1,9 +1,9 @@
 ﻿namespace Logitar.Master.Contracts.Search;
 
 /// <summary>
-/// The available query operators.
+/// The available searching operators.
 /// </summary>
-public enum QueryOperator
+public enum SearchOperator
 {
   /// <summary>
   /// All conditions must be met for a result to match.

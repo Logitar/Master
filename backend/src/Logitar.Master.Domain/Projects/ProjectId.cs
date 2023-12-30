@@ -11,6 +11,10 @@ public record ProjectId
   /// Gets the aggregate identifier.
   /// </summary>
   public AggregateId AggregateId { get; }
+  /// <summary>
+  /// Gets the value of the identifier.
+  /// </summary>
+  public string Value => AggregateId.Value;
 
   internal ProjectId(AggregateId aggregateId)
   {
