@@ -26,4 +26,11 @@ public record DisplayNameUnit
     Value = value.Trim();
     new DisplayNameValidator().ValidateAndThrow(Value);
   }
+
+  /// <summary>
+  /// Creates a new instance of the <see cref="DisplayNameUnit"/> class if the specified value is not null, empty or white-space.
+  /// </summary>
+  /// <param name="value">The value of the display name.</param>
+  /// <returns>The instance of the class, or null.</returns>
+  public static DisplayNameUnit? TryCreate(string? value) => string.IsNullOrWhiteSpace(value) ? null : new(value);
 }

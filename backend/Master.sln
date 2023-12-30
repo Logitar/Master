@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.Contracts", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.Domain", "src\Logitar.Master.Domain\Logitar.Master.Domain.csproj", "{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Application", "src\Logitar.Master.Application\Logitar.Master.Application.csproj", "{3178833B-7C98-4919-AC91-03700AED6530}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3178833B-7C98-4919-AC91-03700AED6530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3178833B-7C98-4919-AC91-03700AED6530}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3178833B-7C98-4919-AC91-03700AED6530}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3178833B-7C98-4919-AC91-03700AED6530}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,6 +11,11 @@ public class ProjectAggregate : AggregateRoot
 {
   private ProjectUpdatedEvent _updatedEvent = new();
 
+  /// <summary>
+  /// Gets the identifier of the project.
+  /// </summary>
+  public new ProjectId Id => new(base.Id);
+
   private UniqueKeyUnit? _uniqueKey = null;
   /// <summary>
   /// Gets the unique key of the project.

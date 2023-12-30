@@ -26,4 +26,11 @@ public record UniqueKeyUnit
     Value = value.Trim();
     new UniqueKeyValidator().ValidateAndThrow(Value);
   }
+
+  /// <summary>
+  /// Creates a new instance of the <see cref="UniqueKeyUnit"/> class if the specified value is not null, empty or white-space.
+  /// </summary>
+  /// <param name="value">The value of the unique key.</param>
+  /// <returns>The instance of the class, or null.</returns>
+  public static UniqueKeyUnit? TryCreate(string? value) => string.IsNullOrWhiteSpace(value) ? null : new(value);
 }
