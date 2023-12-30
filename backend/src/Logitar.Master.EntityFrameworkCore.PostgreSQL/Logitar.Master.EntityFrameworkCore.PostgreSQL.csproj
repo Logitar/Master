@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Logitar.Data.PostgreSQL" Version="2.1.0" />
-    <PackageReference Include="Logitar.EventSourcing.EntityFrameworkCore.PostgreSQL" Version="4.0.0" />
+    <PackageReference Include="Logitar.EventSourcing.EntityFrameworkCore.PostgreSQL" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

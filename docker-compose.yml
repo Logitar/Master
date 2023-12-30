@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  master_mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: Logitar.Master_mssql
+    ports:
+      - 21689:1433
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: knPuYgUarpmfX3dK
+  
+  master_backend:
+    build:
+      context: ./backend
+      dockerfile: /src/Logitar.Master/Dockerfile
+    image: master_backend
+    container_name: master_backend
+    depends_on:
+      - master_mssql
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_Environment: Development
+      SQLCONNSTR_Master: Server=master_mssql,21689;Database=MasterPM;User Id=SA;Password=knPuYgUarpmfX3dK;Persist Security Info=False;Encrypt=False;
+    ports:
+      - 30697:8080

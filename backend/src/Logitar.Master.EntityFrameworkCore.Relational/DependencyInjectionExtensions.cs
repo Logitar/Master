@@ -2,6 +2,7 @@
 using Logitar.Master.Application.Projects;
 using Logitar.Master.Domain.Projects;
 using Logitar.Master.EntityFrameworkCore.Relational.Actors;
+using Logitar.Master.EntityFrameworkCore.Relational.Queriers;
 using Logitar.Master.EntityFrameworkCore.Relational.Repositories;
 using Logitar.Master.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ public static class DependencyInjectionExtensions
 
   private static IServiceCollection AddQueriers(this IServiceCollection services)
   {
-    return services.AddTransient<IProjectQuerier, IProjectQuerier>();
+    return services.AddTransient<IProjectQuerier, ProjectQuerier>();
   }
 
   private static IServiceCollection AddRepositories(this IServiceCollection services)
