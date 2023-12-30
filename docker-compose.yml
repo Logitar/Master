@@ -14,7 +14,7 @@ services:
       context: ./backend
       dockerfile: /src/Logitar.Master/Dockerfile
     image: master_backend
-    container_name: master_backend
+    container_name: Logitar.Master_backend
     depends_on:
       - master_mssql
     restart: unless-stopped
