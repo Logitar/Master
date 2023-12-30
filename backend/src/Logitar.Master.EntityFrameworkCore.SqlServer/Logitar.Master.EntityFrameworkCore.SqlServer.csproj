@@ -10,12 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Logitar.EventSourcing.Infrastructure" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Logitar.Data.SqlServer" Version="2.1.0" />
+    <PackageReference Include="Logitar.EventSourcing.EntityFrameworkCore.SqlServer" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logitar.Master.Application\Logitar.Master.Application.csproj" />
+    <ProjectReference Include="..\Logitar.Master.EntityFrameworkCore.Relational\Logitar.Master.EntityFrameworkCore.Relational.csproj" />
   </ItemGroup>
 
 </Project>
