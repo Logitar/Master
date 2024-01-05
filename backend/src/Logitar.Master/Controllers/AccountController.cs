@@ -23,4 +23,13 @@ public class AccountController : ControllerBase
 
     return Ok(session); // TODO(fpion): NoContent();
   }
+
+  [HttpPost("sign/in")]
+  public async Task<ActionResult<Session>> SignInAsync([FromBody] SignInPayload payload, CancellationToken cancellationToken) // TODO(fpion): no return?
+  {
+    Session session = await _accountService.SignInAsync(payload, cancellationToken);
+    // TODO(fpion): sign-in user
+
+    return Ok(session); // TODO(fpion): NoContent();
+  }
 }
