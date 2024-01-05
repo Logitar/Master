@@ -11,61 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.Contracts", "src\Logitar.Master.Contracts\Logitar.Master.Contracts.csproj", "{2AA3C200-D006-4C1A-AA9A-1F17F5F56CB2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.Domain", "src\Logitar.Master.Domain\Logitar.Master.Domain.csproj", "{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Application", "src\Logitar.Master.Application\Logitar.Master.Application.csproj", "{3178833B-7C98-4919-AC91-03700AED6530}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Infrastructure", "src\Logitar.Master.Infrastructure\Logitar.Master.Infrastructure.csproj", "{2D42F673-D370-4C66-9CF2-BD85845E0C3B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFrameworkCore.Relational", "src\Logitar.Master.EntityFrameworkCore.Relational\Logitar.Master.EntityFrameworkCore.Relational.csproj", "{9ED97F0D-D06D-4839-975E-D38454B7E4DA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFrameworkCore.SqlServer", "src\Logitar.Master.EntityFrameworkCore.SqlServer\Logitar.Master.EntityFrameworkCore.SqlServer.csproj", "{E72220AD-EBD1-4A45-ABF4-484DB4A672BB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFrameworkCore.PostgreSQL", "src\Logitar.Master.EntityFrameworkCore.PostgreSQL\Logitar.Master.EntityFrameworkCore.PostgreSQL.csproj", "{ED2B1DC3-4838-4B27-AAEF-42D76FF17540}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master", "src\Logitar.Master\Logitar.Master.csproj", "{54807307-B8B2-4D9A-9D95-607A96DAEEFE}"
-EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2AA3C200-D006-4C1A-AA9A-1F17F5F56CB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AA3C200-D006-4C1A-AA9A-1F17F5F56CB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AA3C200-D006-4C1A-AA9A-1F17F5F56CB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AA3C200-D006-4C1A-AA9A-1F17F5F56CB2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA10774D-0E8C-48CB-8532-0BDCAD08B4A1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3178833B-7C98-4919-AC91-03700AED6530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3178833B-7C98-4919-AC91-03700AED6530}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3178833B-7C98-4919-AC91-03700AED6530}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3178833B-7C98-4919-AC91-03700AED6530}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D42F673-D370-4C66-9CF2-BD85845E0C3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D42F673-D370-4C66-9CF2-BD85845E0C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D42F673-D370-4C66-9CF2-BD85845E0C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D42F673-D370-4C66-9CF2-BD85845E0C3B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9ED97F0D-D06D-4839-975E-D38454B7E4DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9ED97F0D-D06D-4839-975E-D38454B7E4DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9ED97F0D-D06D-4839-975E-D38454B7E4DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9ED97F0D-D06D-4839-975E-D38454B7E4DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E72220AD-EBD1-4A45-ABF4-484DB4A672BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E72220AD-EBD1-4A45-ABF4-484DB4A672BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E72220AD-EBD1-4A45-ABF4-484DB4A672BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E72220AD-EBD1-4A45-ABF4-484DB4A672BB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED2B1DC3-4838-4B27-AAEF-42D76FF17540}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED2B1DC3-4838-4B27-AAEF-42D76FF17540}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED2B1DC3-4838-4B27-AAEF-42D76FF17540}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED2B1DC3-4838-4B27-AAEF-42D76FF17540}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54807307-B8B2-4D9A-9D95-607A96DAEEFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54807307-B8B2-4D9A-9D95-607A96DAEEFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54807307-B8B2-4D9A-9D95-607A96DAEEFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54807307-B8B2-4D9A-9D95-607A96DAEEFE}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
