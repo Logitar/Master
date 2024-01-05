@@ -1,4 +1,5 @@
 ﻿using Logitar.Master.EntityFrameworkCore.SqlServer;
+using Logitar.Master.Filters;
 using System.Text.Json.Serialization;
 
 namespace Logitar.Master;
@@ -18,7 +19,7 @@ internal class Startup : StartupBase
   {
     base.ConfigureServices(services);
 
-    services.AddControllers() // TODO(fpion): Exception Handling, Logging?
+    services.AddControllers(options => options.Filters.Add<ExceptionHandlingFilterAttribute>()) // TODO(fpion): Logging?
       .AddJsonOptions(options =>
       {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
