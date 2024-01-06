@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Logitar.Identity.EntityFrameworkCore.SqlServer" Version="0.2.1" />
+    <PackageReference Include="Logitar.Identity.EntityFrameworkCore.SqlServer" Version="0.11.0" />
   </ItemGroup>
 
   <ItemGroup>

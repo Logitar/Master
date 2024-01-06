@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Logitar.Identity.EntityFrameworkCore.Relational" Version="0.2.2" />
+    <PackageReference Include="Logitar.Identity.EntityFrameworkCore.Relational" Version="0.11.1" />
   </ItemGroup>
 
   <ItemGroup>

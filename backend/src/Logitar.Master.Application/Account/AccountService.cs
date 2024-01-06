@@ -18,9 +18,4 @@ internal class AccountService : IAccountService
   {
     return await _mediator.Send(new RegisterCommand(payload), cancellationToken);
   }
-
-  public async Task<Session> SignInAsync(SignInPayload payload, CancellationToken cancellationToken)
-  {
-    return await _mediator.Send(new SignInCommand(payload), cancellationToken);
-  }
 }

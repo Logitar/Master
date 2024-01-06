@@ -1,5 +1,10 @@
-﻿using Logitar.Master.Contracts.Account;
+﻿using Logitar.Master.Constants;
+using Logitar.Master.Contracts.Account;
 using Logitar.Master.Contracts.Sessions;
+using Logitar.Master.Contracts.Users;
+using Logitar.Master.Models.Account;
+using Logitar.Master.Web.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logitar.Master.Controllers;
@@ -9,27 +14,70 @@ namespace Logitar.Master.Controllers;
 public class AccountController : ControllerBase
 {
   private readonly IAccountService _accountService;
+  private readonly ISessionService _sessionService;
 
-  public AccountController(IAccountService accountService)
+  public AccountController(IAccountService accountService, ISessionService sessionService)
   {
     _accountService = accountService;
+    _sessionService = sessionService;
+  }
+
+  /* TODO(fpion): implement
+   * - RecoverPasswordAsync
+   * - ResetPasswordAsync
+   * - SaveProfileAsync
+   */
+
+  [Authorize(Policies.SystemUser)]
+  [HttpGet("profile")]
+  public ActionResult<User> GetProfile()
+  {
+    User user = HttpContext.GetUser() ?? throw new InvalidOperationException("The user context item has not been set.");
+    return Ok(user);
   }
 
   [HttpPost("register")]
-  public async Task<ActionResult<Session>> RegisterAsync([FromBody] RegisterPayload payload, CancellationToken cancellationToken) // TODO(fpion): no return?
+  public async Task<ActionResult<CurrentUser>> RegisterAsync([FromBody] RegisterPayload payload, CancellationToken cancellationToken)
   {
     Session session = await _accountService.RegisterAsync(payload, cancellationToken);
-    // TODO(fpion): sign-in user
+    HttpContext.SignIn(session);
 
-    return Ok(session); // TODO(fpion): NoContent();
+    return Ok(GetCurrentUser(session));
   }
 
   [HttpPost("sign/in")]
-  public async Task<ActionResult<Session>> SignInAsync([FromBody] SignInPayload payload, CancellationToken cancellationToken) // TODO(fpion): no return?
+  public async Task<ActionResult<CurrentUser>> SignInAsync([FromBody] SignInPayload payload, CancellationToken cancellationToken)
   {
-    Session session = await _accountService.SignInAsync(payload, cancellationToken);
-    // TODO(fpion): sign-in user
+    payload.TenantId = null;
+    Session session = await _sessionService.SignInAsync(payload, cancellationToken);
+    Uri uri = new($"{Request.Scheme}://{Request.Host}/sessions/{session.Id}");
 
-    return Ok(session); // TODO(fpion): NoContent();
+    HttpContext.SignIn(session);
+
+    return Created(uri, session);
+  }
+
+  [HttpPost("sign/out")]
+  public async Task<ActionResult> SignOutAsync(CancellationToken cancellationToken)
+  {
+    string? id = HttpContext.GetSessionId();
+    if (id != null)
+    {
+      _ = await _sessionService.SignOutAsync(id, cancellationToken);
+    }
+
+    HttpContext.SignOut();
+
+    return NoContent();
+  }
+
+  private static CurrentUser GetCurrentUser(Session session)
+  {
+    if (session.User == null)
+    {
+      throw new ArgumentException($"The {nameof(session.User)} is required.", nameof(session));
+    }
+
+    return new CurrentUser(session.User);
   }
 }

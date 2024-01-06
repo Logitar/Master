@@ -1,18 +1,16 @@
-﻿using Logitar.EventSourcing;
+﻿using FluentValidation;
+using Logitar.EventSourcing;
 using Logitar.Identity.Domain.Passwords;
 using Logitar.Identity.Domain.Sessions;
 using Logitar.Identity.Domain.Users;
-using Logitar.Master.Application.Sessions;
-using Logitar.Master.Contracts.Account;
+using Logitar.Master.Application.Sessions.Validators;
 using Logitar.Master.Contracts.Sessions;
 using MediatR;
 
-namespace Logitar.Master.Application.Account.Commands;
+namespace Logitar.Master.Application.Sessions.Commands;
 
 internal class SignInCommandHandler : IRequestHandler<SignInCommand, Session>
 {
-  private const int SecretLength = 256 / 8;
-
   private readonly IPasswordManager _passwordManager;
   private readonly ISessionQuerier _sessionQuerier;
   private readonly ISessionRepository _sessionRepository;
@@ -29,6 +27,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, Session>
   public async Task<Session> Handle(SignInCommand command, CancellationToken cancellationToken)
   {
     SignInPayload payload = command.Payload;
+    new SignInPayloadValidator().ValidateAndThrow(payload);
 
     UserAggregate user = await _userManager.FindAsync(payload.TenantId, payload.UniqueName, cancellationToken)
       ?? throw new UserNotFoundException(payload.TenantId, payload.UniqueName);
@@ -38,7 +37,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, Session>
     byte[]? secretBytes = null;
     if (payload.IsPersistent)
     {
-      secret = _passwordManager.Generate(SecretLength, out secretBytes);
+      secret = _passwordManager.Generate(RefreshToken.SecretLength, out secretBytes);
     }
     SessionAggregate session = user.SignIn(payload.Password, secret, actorId);
 
