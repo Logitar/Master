@@ -1,5 +1,6 @@
 ﻿using Logitar.Identity.EntityFrameworkCore.Relational;
 using Logitar.Master.Application.Sessions;
+using Logitar.Master.EntityFrameworkCore.Relational.Actors;
 using Logitar.Master.EntityFrameworkCore.Relational.Queriers;
 using Logitar.Master.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,8 @@ public static class DependencyInjectionExtensions
       .AddLogitarIdentityWithEntityFrameworkCoreRelational()
       .AddLogitarMasterInfrastructure()
       .AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
-      .AddQueriers();
+      .AddQueriers()
+      .AddTransient<IActorService, ActorService>();
   }
 
   private static IServiceCollection AddQueriers(this IServiceCollection services)

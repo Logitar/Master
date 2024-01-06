@@ -41,6 +41,7 @@ internal class Startup : StartupBase
     // TODO(fpion): Health Checks
 
     services.AddLogitarMasterWithEntityFrameworkCoreSqlServer(_configuration);
+    services.AddMemoryCache();
   }
 
   public override void Configure(IApplicationBuilder builder)

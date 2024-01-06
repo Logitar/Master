@@ -25,11 +25,22 @@ internal class Mapper
     }
   }
 
+  public virtual Actor ToActor(ActorEntity actor) => new()
+  {
+    Id = actor.Id,
+    Type = Enum.Parse<ActorType>(actor.Type),
+    IsDeleted = actor.IsDeleted,
+    DisplayName = actor.DisplayName,
+    EmailAddress = actor.EmailAddress,
+    PictureUrl = actor.PictureUrl
+  };
+
   public Session ToSession(SessionEntity source) => ToSession(source, user: null);
   public Session ToSession(SessionEntity source, User? user)
   {
     Session destination = new()
     {
+      IsPersistent = source.IsPersistent,
       IsActive = source.IsActive
     };
     destination.User = user ?? (source.User == null ? null : ToUser(source.User, [destination]));
@@ -46,6 +57,9 @@ internal class Mapper
     {
       TenantId = source.TenantId,
       UniqueName = source.UniqueName,
+      PasswordChangedBy = source.PasswordChangedBy == null ? null : GetActor(source.PasswordChangedBy), // TODO(fpion): missing in GetActorIds
+      PasswordChangedOn = source.PasswordChangedOn.HasValue ? AsUniversalTime(source.PasswordChangedOn.Value) : null,
+      HasPassword = source.HasPassword,
       FullName = source.FullName,
       AuthenticatedOn = source.AuthenticatedOn
     };
