@@ -1,6 +1,15 @@
-﻿using Logitar.Master.EntityFrameworkCore.SqlServer;
+﻿using Logitar.EventSourcing.EntityFrameworkCore.Relational;
+using Logitar.Identity.EntityFrameworkCore.Relational;
+using Logitar.Master.Application;
+using Logitar.Master.Authentication;
+using Logitar.Master.Authorization;
+using Logitar.Master.Constants;
+using Logitar.Master.EntityFrameworkCore.SqlServer;
+using Logitar.Master.Extensions;
 using Logitar.Master.Filters;
-using System.Text.Json.Serialization;
+using Logitar.Master.Middlewares;
+using Logitar.Master.Settings;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Logitar.Master;
 
@@ -19,51 +28,89 @@ internal class Startup : StartupBase
   {
     base.ConfigureServices(services);
 
-    services.AddControllers(options => options.Filters.Add<ExceptionHandlingFilterAttribute>()) // TODO(fpion): Logging?
+    CookiesSettings cookiesSettings = _configuration.GetSection("Cookies").Get<CookiesSettings>() ?? new();
+    services.AddSingleton(cookiesSettings);
+
+    services
+      .AddControllers(options =>
+      {
+        options.Filters.Add<ExceptionHandlingFilterAttribute>();
+        //options.Filters.Add<LoggingFilterAttribute>(); // TODO(fpion): Logging
+      })
       .AddJsonOptions(options =>
       {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
       });
 
-    // TODO(fpion): Cors
-    // TODO(fpion): Authentication
-    // TODO(fpion): Authorization
-    // TODO(fpion): Session
+    services.AddCors(_configuration);
+
+    services.AddAuthentication()
+      .AddScheme<SessionAuthenticationOptions, SessionAuthenticationHandler>(Schemes.Session, options => { });
+
+    services.AddAuthorizationBuilder()
+      .SetDefaultPolicy(new AuthorizationPolicyBuilder(Schemes.All)
+        .RequireAuthenticatedUser()
+        .Build()
+      )
+      .AddPolicy(Policies.SystemUser, new AuthorizationPolicyBuilder(Schemes.All)
+        .RequireAuthenticatedUser()
+        .AddRequirements(new SystemUserAuthorizationRequirement())
+        .Build()
+      );
+
+    services.AddSession(options =>
+    {
+      options.Cookie.SameSite = cookiesSettings.Session.SameSite;
+      options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    });
 
     if (_enableOpenApi)
     {
-      services.AddEndpointsApiExplorer();
-      services.AddSwaggerGen(); // TODO(fpion): OpenApiExtensions
+      services.AddOpenApi();
     }
 
-    // TODO(fpion): Monitoring
-    // TODO(fpion): Health Checks
+    services.AddApplicationInsightsTelemetry();
+    IHealthChecksBuilder healthChecks = services.AddHealthChecks();
 
-    services.AddLogitarMasterWithEntityFrameworkCoreSqlServer(_configuration);
+    services.AddDistributedMemoryCache();
     services.AddMemoryCache();
+    services.AddSingleton<IApplicationContext, HttpApplicationContext>();
+    services.AddSingleton<IAuthorizationHandler, SystemUserAuthorizationHandler>();
+
+    DatabaseProvider databaseProvider = _configuration.GetValue<DatabaseProvider?>("DatabaseProvider")
+      ?? DatabaseProvider.EntityFrameworkCoreSqlServer;
+    switch (databaseProvider)
+    {
+      case DatabaseProvider.EntityFrameworkCoreSqlServer:
+        services.AddLogitarMasterWithEntityFrameworkCoreSqlServer(_configuration);
+        healthChecks.AddDbContextCheck<EventContext>();
+        healthChecks.AddDbContextCheck<IdentityContext>();
+        break;
+      default:
+        throw new DatabaseProviderNotSupportedException(databaseProvider);
+    }
   }
 
   public override void Configure(IApplicationBuilder builder)
   {
     if (_enableOpenApi)
     {
-      builder.UseSwagger();
-      builder.UseSwaggerUI(); // TODO(fpion): OpenApiExtensions
+      builder.UseOpenApi();
     }
 
     builder.UseHttpsRedirection();
-    // TODO(fpion): Cors
+    builder.UseCors();
+    builder.UseSession();
     // TODO(fpion): Logging
-    //app.UseAuthentication(); // TODO(fpion): Authentication
-    //app.UseAuthorization(); // TODO(fpion): Authorization
-    // TODO(fpion): Session?
-    // TODO(fpion): Session Renewal?
+    builder.UseMiddleware<RenewSession>();
+    builder.UseAuthentication();
+    builder.UseAuthorization();
 
     if (builder is WebApplication application)
     {
       application.MapControllers();
-      // TODO(fpion): Health Checks
+      application.MapHealthChecks("/health");
     }
   }
 }

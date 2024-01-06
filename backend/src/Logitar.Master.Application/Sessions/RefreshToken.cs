@@ -1,8 +1,9 @@
-﻿namespace Logitar.Master.Application.Account;
+﻿namespace Logitar.Master.Application.Sessions;
 
 internal record RefreshToken
 {
   public const string Prefix = "RT";
+  public const int SecretLength = 32;
   public const char Separator = ':';
 
   public string Id { get; }
@@ -10,6 +11,11 @@ internal record RefreshToken
 
   public RefreshToken(string id, byte[] secret)
   {
+    if (secret.Length != SecretLength)
+    {
+      throw new ArgumentException($"The secret length should be {SecretLength} bytes.", nameof(secret));
+    }
+
     Id = id;
     Secret = secret;
   }

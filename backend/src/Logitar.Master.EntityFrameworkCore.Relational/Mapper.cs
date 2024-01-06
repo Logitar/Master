@@ -41,6 +41,8 @@ internal class Mapper
     Session destination = new()
     {
       IsPersistent = source.IsPersistent,
+      SignedOutBy = TryGetActor(source.SignedOutBy),
+      SignedOutOn = AsUniversalTime(source.SignedOutOn),
       IsActive = source.IsActive
     };
     destination.User = user ?? (source.User == null ? null : ToUser(source.User, [destination]));
@@ -57,13 +59,39 @@ internal class Mapper
     {
       TenantId = source.TenantId,
       UniqueName = source.UniqueName,
-      PasswordChangedBy = source.PasswordChangedBy == null ? null : GetActor(source.PasswordChangedBy), // TODO(fpion): missing in GetActorIds
-      PasswordChangedOn = source.PasswordChangedOn.HasValue ? AsUniversalTime(source.PasswordChangedOn.Value) : null,
+      PasswordChangedBy = TryGetActor(source.PasswordChangedBy),
+      PasswordChangedOn = AsUniversalTime(source.PasswordChangedOn),
       HasPassword = source.HasPassword,
+      DisabledBy = TryGetActor(source.DisabledBy),
+      DisabledOn = AsUniversalTime(source.DisabledOn),
+      IsDisabled = source.IsDisabled,
+      IsConfirmed = source.IsConfirmed,
+      FirstName = source.FirstName,
+      MiddleName = source.MiddleName,
+      LastName = source.LastName,
       FullName = source.FullName,
+      Nickname = source.Nickname,
+      Birthdate = source.Birthdate,
+      Gender = source.Gender,
+      Locale = source.Locale,
+      TimeZone = source.TimeZone,
+      Picture = source.Picture,
+      Profile = source.Profile,
+      Website = source.Website,
       AuthenticatedOn = source.AuthenticatedOn
     };
     destination.Sessions = (sessions ?? source.Sessions.Select(session => ToSession(session, destination))).ToList();
+
+    if (source.EmailAddress != null)
+    {
+      destination.Email = new Email
+      {
+        VerifiedBy = TryGetActor(source.EmailVerifiedBy),
+        VerifiedOn = AsUniversalTime(source.EmailVerifiedOn),
+        IsVerified = source.IsEmailVerified,
+        Address = source.EmailAddress
+      };
+    }
 
     MapAggregate(source, destination);
 
@@ -82,6 +110,8 @@ internal class Mapper
 
   private Actor GetActor(string id) => GetActor(new ActorId(id));
   private Actor GetActor(ActorId id) => _actors.TryGetValue(id, out Actor? actor) ? actor : _system;
+  private Actor? TryGetActor(string? id) => id == null ? null : GetActor(id);
 
   private static DateTime AsUniversalTime(DateTime value) => DateTime.SpecifyKind(value, DateTimeKind.Utc);
+  private static DateTime? AsUniversalTime(DateTime? value) => value.HasValue ? AsUniversalTime(value.Value) : null;
 }

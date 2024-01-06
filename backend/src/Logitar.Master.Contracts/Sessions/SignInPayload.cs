@@ -1,4 +1,4 @@
-﻿namespace Logitar.Master.Contracts.Account;
+﻿namespace Logitar.Master.Contracts.Sessions;
 
 public record SignInPayload
 {

@@ -19,21 +19,21 @@ internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Session
   private readonly ISessionQuerier _sessionQuerier;
   private readonly ISessionRepository _sessionRepository;
   private readonly IUserManager _userManager;
-  private readonly IUserSettings _userSettings;
+  private readonly IUserSettingsResolver _userSettingsResolver;
 
   public RegisterCommandHandler(IPasswordManager passwordManager, ISessionQuerier sessionQuerier,
-    ISessionRepository sessionRepository, IUserManager userManager, IUserSettings userSettings)
+    ISessionRepository sessionRepository, IUserManager userManager, IUserSettingsResolver userSettingsResolver)
   {
     _passwordManager = passwordManager;
     _sessionQuerier = sessionQuerier;
     _sessionRepository = sessionRepository;
     _userManager = userManager;
-    _userSettings = userSettings;
+    _userSettingsResolver = userSettingsResolver;
   }
 
   public async Task<Session> Handle(RegisterCommand command, CancellationToken cancellationToken)
   {
-    IUniqueNameSettings uniqueNameSettings = _userSettings.UniqueName;
+    IUniqueNameSettings uniqueNameSettings = _userSettingsResolver.Resolve().UniqueName;
 
     RegisterPayload payload = command.Payload;
     new RegisterPayloadValidator(uniqueNameSettings).ValidateAndThrow(payload);
@@ -48,6 +48,10 @@ internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Session
       Password password = _passwordManager.Create(payload.Password);
       user.SetPassword(password, actorId);
     }
+    user.SetEmail(EmailUnit.TryCreate(payload.EmailAddress), actorId);
+    user.FirstName = PersonNameUnit.TryCreate(payload.FirstName);
+    user.LastName = PersonNameUnit.TryCreate(payload.LastName);
+    user.Update(actorId);
 
     SessionAggregate session = user.SignIn(password: null, secret: null, actorId);
 
