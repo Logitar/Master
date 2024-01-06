@@ -3,7 +3,7 @@
 public record RegisterPayload
 {
   public string UniqueName { get; set; } = string.Empty;
-  // TODO(fpion): Password
+  public string? Password { get; set; }
 
   // TODO(fpion): EmailAddress
 
