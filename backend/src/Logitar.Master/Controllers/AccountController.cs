@@ -54,7 +54,7 @@ public class AccountController : ControllerBase
 
     HttpContext.SignIn(session);
 
-    return Created(uri, session);
+    return Created(uri, GetCurrentUser(session));
   }
 
   [HttpPost("sign/out")]

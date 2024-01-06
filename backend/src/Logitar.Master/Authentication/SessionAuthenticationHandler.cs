@@ -4,8 +4,6 @@ using Logitar.Master.Web.Extensions;
 using Logitar.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
 
 namespace Logitar.Master.Authentication;
 
