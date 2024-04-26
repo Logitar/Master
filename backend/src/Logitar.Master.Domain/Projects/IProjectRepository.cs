@@ -2,6 +2,7 @@
 
 public interface IProjectRepository
 {
+  Task<IEnumerable<ProjectAggregate>> LoadAsync(CancellationToken cancellationToken = default);
   Task<ProjectAggregate?> LoadAsync(Guid id, CancellationToken cancellationToken = default);
   Task<ProjectAggregate?> LoadAsync(ProjectId id, CancellationToken cancellationToken = default);
   Task<ProjectAggregate?> LoadAsync(ProjectId id, long? version, CancellationToken cancellationToken = default);

@@ -19,6 +19,11 @@ internal class ProjectRepository : EventSourcing.EntityFrameworkCore.Relational.
     _sqlHelper = sqlHelper;
   }
 
+  public async Task<IEnumerable<ProjectAggregate>> LoadAsync(CancellationToken cancellationToken)
+  {
+    return await base.LoadAsync<ProjectAggregate>(cancellationToken);
+  }
+
   public async Task<ProjectAggregate?> LoadAsync(Guid id, CancellationToken cancellationToken)
   {
     return await base.LoadAsync<ProjectAggregate>(new AggregateId(id), cancellationToken);
