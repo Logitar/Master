@@ -1,7 +1,9 @@
 ﻿using Logitar.Master.Application.Projects.Commands;
 using Logitar.Master.Application.Projects.Queries;
 using Logitar.Master.Contracts.Projects;
+using Logitar.Master.Contracts.Search;
 using Logitar.Master.Extensions;
+using Logitar.Master.Models.Projects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +53,13 @@ public class ProjectController : ControllerBase
   {
     Project? project = await _sender.Send(new ReplaceProjectCommand(id, payload, version), cancellationToken);
     return project == null ? NotFound() : Ok(project);
+  }
+
+  [HttpGet]
+  public async Task<ActionResult<SearchResults<Project>>> SearchAsync([FromQuery] SearchProjectsParameters parameters, CancellationToken cancellationToken)
+  {
+    SearchResults<Project> projects = await _sender.Send(new SearchProjectsQuery(parameters.ToPayload()), cancellationToken);
+    return Ok(projects);
   }
 
   [HttpPatch("{id}")]
