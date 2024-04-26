@@ -18,9 +18,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Logitar.Net" Version="6.1.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Logitar.Master.Application\Logitar.Master.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
