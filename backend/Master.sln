@@ -26,6 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFramew
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFrameworkCore.SqlServer", "src\Logitar.Master.EntityFrameworkCore.SqlServer\Logitar.Master.EntityFrameworkCore.SqlServer.csproj", "{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{01817770-861B-453F-A98F-E42840A5E16F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.IntegrationTests", "tests\Logitar.Master.IntegrationTests\Logitar.Master.IntegrationTests.csproj", "{1ED47AD8-2738-47A2-A39C-422DB09953C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,9 +64,16 @@ Global
 		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1ED47AD8-2738-47A2-A39C-422DB09953C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1ED47AD8-2738-47A2-A39C-422DB09953C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1ED47AD8-2738-47A2-A39C-422DB09953C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1ED47AD8-2738-47A2-A39C-422DB09953C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1ED47AD8-2738-47A2-A39C-422DB09953C7} = {01817770-861B-453F-A98F-E42840A5E16F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EF5DF67-96A3-4877-949F-E046443F9E9A}

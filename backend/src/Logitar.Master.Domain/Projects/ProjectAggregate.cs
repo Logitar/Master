@@ -56,7 +56,7 @@ public class ProjectAggregate : AggregateRoot
   {
     if (_updatedEvent.HasChanges)
     {
-      Raise(_updatedEvent, actorId);
+      Raise(_updatedEvent, actorId, occurredOn: DateTime.Now);
       _updatedEvent = new();
     }
   }
