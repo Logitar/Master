@@ -13,4 +13,9 @@ public record UniqueKeyUnit
     Value = value.Trim();
     new UniqueKeyValidator().ValidateAndThrow(value);
   }
+
+  public static UniqueKeyUnit? TryCreate(string? value)
+  {
+    return string.IsNullOrWhiteSpace(value) ? null : new UniqueKeyUnit(value.Trim());
+  }
 }

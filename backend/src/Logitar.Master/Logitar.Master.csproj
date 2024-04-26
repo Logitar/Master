@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logitar.Master.Application\Logitar.Master.Application.csproj" />
+    <ProjectReference Include="..\Logitar.Master.Infrastructure\Logitar.Master.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

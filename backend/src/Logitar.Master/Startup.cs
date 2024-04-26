@@ -1,6 +1,6 @@
-﻿using Logitar.Master.Application;
-using Logitar.Master.Extensions;
+﻿using Logitar.Master.Extensions;
 using Logitar.Master.Filters;
+using Logitar.Master.Infrastructure;
 using Logitar.Master.Settings;
 
 namespace Logitar.Master;
@@ -33,7 +33,7 @@ internal class Startup : StartupBase
       services.AddOpenApi();
     }
 
-    services.AddLogitarMasterApplication();
+    services.AddLogitarMasterInfrastructure();
   }
 
   public override void Configure(IApplicationBuilder builder)
