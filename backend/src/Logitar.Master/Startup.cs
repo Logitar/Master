@@ -1,5 +1,6 @@
 ﻿using Logitar.Master.Application;
 using Logitar.Master.Extensions;
+using Logitar.Master.Filters;
 using Logitar.Master.Settings;
 
 namespace Logitar.Master;
@@ -17,7 +18,7 @@ internal class Startup : StartupBase
 
   public override void ConfigureServices(IServiceCollection services)
   {
-    services.AddControllers()
+    services.AddControllers(options => options.Filters.Add<ExceptionHandling>())
       .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
     CorsSettings corsSettings = _configuration.GetSection("Cors").Get<CorsSettings>() ?? new();

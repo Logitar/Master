@@ -1,9 +1,10 @@
-﻿using Logitar.Master.Contracts.Projects;
+﻿using Logitar.Master.Contracts.Errors;
+using Logitar.Master.Contracts.Projects;
 using Logitar.Master.Domain.Projects;
 
 namespace Logitar.Master.Application.Projects;
 
-public class UniqueKeyAlreadyUsedException : Exception
+public class UniqueKeyAlreadyUsedException : ConflictException
 {
   private const string ErrorMessage = "The specified unique key is already used.";
 
@@ -17,6 +18,8 @@ public class UniqueKeyAlreadyUsedException : Exception
     get => (string?)Data[nameof(PropertyName)];
     private set => Data[nameof(PropertyName)] = value;
   }
+
+  public override PropertyError Error => new(this.GetErrorCode(), ErrorMessage, PropertyName, UniqueKey.Value);
 
   public UniqueKeyAlreadyUsedException(UniqueKeyUnit uniqueKey, string? propertyName = null) : base(BuildMessage(uniqueKey, propertyName))
   {

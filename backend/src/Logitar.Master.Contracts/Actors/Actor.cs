@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Logitar.Master.Contracts.Actors;
+﻿namespace Logitar.Master.Contracts.Actors;
 
 public class Actor
 {
