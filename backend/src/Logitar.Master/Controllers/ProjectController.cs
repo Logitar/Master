@@ -25,6 +25,13 @@ public class ProjectController : ControllerBase
     return Created(BuildLocation(project), project);
   }
 
+  [HttpDelete("{id}")]
+  public async Task<ActionResult<Project>> DeleteAsync(Guid id, CancellationToken cancellationToken)
+  {
+    Project? project = await _sender.Send(new DeleteProjectCommand(id), cancellationToken);
+    return project == null ? NotFound() : Ok(project);
+  }
+
   [HttpGet("{id}")]
   public async Task<ActionResult<Project>> ReadAsync(Guid id, CancellationToken cancellationToken)
   {
@@ -36,6 +43,20 @@ public class ProjectController : ControllerBase
   public async Task<ActionResult<Project>> ReadAsync(string uniqueKey, CancellationToken cancellationToken)
   {
     Project? project = await _sender.Send(new ReadProjectQuery(Id: null, uniqueKey), cancellationToken);
+    return project == null ? NotFound() : Ok(project);
+  }
+
+  [HttpPut("{id}")]
+  public async Task<ActionResult<Project>> ReplaceAsync(Guid id, [FromBody] ReplaceProjectPayload payload, long? version, CancellationToken cancellationToken)
+  {
+    Project? project = await _sender.Send(new ReplaceProjectCommand(id, payload, version), cancellationToken);
+    return project == null ? NotFound() : Ok(project);
+  }
+
+  [HttpPatch("{id}")]
+  public async Task<ActionResult<Project>> UpdateAsync(Guid id, [FromBody] UpdateProjectPayload payload, CancellationToken cancellationToken)
+  {
+    Project? project = await _sender.Send(new UpdateProjectCommand(id, payload), cancellationToken);
     return project == null ? NotFound() : Ok(project);
   }
 

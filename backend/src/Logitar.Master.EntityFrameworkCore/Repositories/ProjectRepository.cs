@@ -1,4 +1,5 @@
 ﻿using Logitar.Data;
+using Logitar.EventSourcing;
 using Logitar.EventSourcing.EntityFrameworkCore.Relational;
 using Logitar.EventSourcing.Infrastructure;
 using Logitar.Master.Domain.Projects;
@@ -16,6 +17,19 @@ internal class ProjectRepository : EventSourcing.EntityFrameworkCore.Relational.
     : base(eventBus, eventContext, eventSerializer)
   {
     _sqlHelper = sqlHelper;
+  }
+
+  public async Task<ProjectAggregate?> LoadAsync(Guid id, CancellationToken cancellationToken)
+  {
+    return await base.LoadAsync<ProjectAggregate>(new AggregateId(id), cancellationToken);
+  }
+  public async Task<ProjectAggregate?> LoadAsync(ProjectId id, CancellationToken cancellationToken)
+  {
+    return await base.LoadAsync<ProjectAggregate>(id.AggregateId, cancellationToken);
+  }
+  public async Task<ProjectAggregate?> LoadAsync(ProjectId id, long? version, CancellationToken cancellationToken)
+  {
+    return await base.LoadAsync<ProjectAggregate>(id.AggregateId, version, cancellationToken);
   }
 
   public async Task<ProjectAggregate?> LoadAsync(UniqueKeyUnit uniqueKey, CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
 ﻿using Logitar.EventSourcing;
+using Logitar.Master.Contracts;
 using Logitar.Master.Domain.Shared;
 using MediatR;
 

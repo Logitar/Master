@@ -1,4 +1,4 @@
-﻿namespace Logitar.Master.Domain;
+﻿namespace Logitar.Master.Contracts;
 
 public record Change<T>
 {

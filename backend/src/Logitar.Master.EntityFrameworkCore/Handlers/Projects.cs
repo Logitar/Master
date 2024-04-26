@@ -31,6 +31,28 @@ internal static class Projects
     }
   }
 
+  public class ProjectDeletedEventHandler : INotificationHandler<ProjectDeletedEvent>
+  {
+    private readonly MasterContext _context;
+
+    public ProjectDeletedEventHandler(MasterContext context)
+    {
+      _context = context;
+    }
+
+    public async Task Handle(ProjectDeletedEvent @event, CancellationToken cancellationToken)
+    {
+      ProjectEntity? project = await _context.Projects
+        .SingleOrDefaultAsync(x => x.AggregateId == @event.AggregateId.Value, cancellationToken);
+      if (project != null)
+      {
+        _context.Projects.Remove(project);
+
+        await _context.SaveChangesAsync(cancellationToken);
+      }
+    }
+  }
+
   public class ProjectUpdatedEventHandler : INotificationHandler<ProjectUpdatedEvent>
   {
     private readonly MasterContext _context;

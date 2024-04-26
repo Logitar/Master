@@ -1,4 +1,5 @@
 ﻿using Logitar.EventSourcing;
+using Logitar.Master.Contracts;
 using Logitar.Master.Domain.Projects.Events;
 using Logitar.Master.Domain.Shared;
 
@@ -50,6 +51,14 @@ public class ProjectAggregate : AggregateRoot
   protected virtual void Apply(ProjectCreatedEvent @event)
   {
     _uniqueKey = @event.UniqueKey;
+  }
+
+  public void Delete(ActorId actorId = default)
+  {
+    if (!IsDeleted)
+    {
+      Raise(new ProjectDeletedEvent(), actorId);
+    }
   }
 
   public void Update(ActorId actorId = default)
