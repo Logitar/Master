@@ -1,6 +1,6 @@
-﻿using Logitar.Portal.Contracts.Actors;
+﻿using Logitar.Master.Contracts.Actors;
 
-namespace Logitar.Portal.Contracts;
+namespace Logitar.Master.Contracts;
 
 public abstract class Aggregate
 {

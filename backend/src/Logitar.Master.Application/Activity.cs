@@ -1,5 +1,5 @@
 ﻿using Logitar.EventSourcing;
-using Logitar.Portal.Contracts.Actors;
+using Logitar.Master.Contracts.Actors;
 
 namespace Logitar.Master.Application;
 

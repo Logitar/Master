@@ -1,4 +1,4 @@
-﻿namespace Logitar.Portal.Contracts.Projects;
+﻿namespace Logitar.Master.Contracts.Projects;
 
 public class Project : Aggregate
 {

@@ -1,6 +1,6 @@
 ﻿using Logitar.Master.Application.Projects.Commands;
+using Logitar.Master.Contracts.Projects;
 using Logitar.Master.Extensions;
-using Logitar.Portal.Contracts.Projects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +14,7 @@ public class ProjectController : ControllerBase
 
   public ProjectController(ISender sender)
   {
-    _sender = sender;
+    _sender = sender; // TODO(fpion): ActivityPipeline or something like that
   }
 
   [HttpPost]

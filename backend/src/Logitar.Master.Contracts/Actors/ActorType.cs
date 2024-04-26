@@ -1,4 +1,4 @@
-﻿namespace Logitar.Portal.Contracts.Actors;
+﻿namespace Logitar.Master.Contracts.Actors;
 
 public enum ActorType
 {

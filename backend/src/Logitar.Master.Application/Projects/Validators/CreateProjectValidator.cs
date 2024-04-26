@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
+using Logitar.Master.Contracts.Projects;
 using Logitar.Master.Domain.Projects;
 using Logitar.Master.Domain.Shared;
-using Logitar.Portal.Contracts.Projects;
 
 namespace Logitar.Master.Application.Projects.Validators;
 

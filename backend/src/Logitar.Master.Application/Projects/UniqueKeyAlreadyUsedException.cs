@@ -1,5 +1,5 @@
-﻿using Logitar.Master.Domain.Projects;
-using Logitar.Portal.Contracts.Projects;
+﻿using Logitar.Master.Contracts.Projects;
+using Logitar.Master.Domain.Projects;
 
 namespace Logitar.Master.Application.Projects;
 

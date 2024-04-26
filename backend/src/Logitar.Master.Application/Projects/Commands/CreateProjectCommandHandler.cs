@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Logitar.Master.Application.Projects.Validators;
+using Logitar.Master.Contracts.Projects;
 using Logitar.Master.Domain.Projects;
 using Logitar.Master.Domain.Shared;
-using Logitar.Portal.Contracts.Projects;
 using MediatR;
 
 namespace Logitar.Master.Application.Projects.Commands;
