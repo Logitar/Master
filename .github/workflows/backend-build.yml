@@ -1,0 +1,29 @@
+name: Build Master Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./backend
+
+jobs:
+  build:
+    name: Build Master Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build . -t francispion.azurecr.io/master_backend:${{ github.sha }} -f src/Logitar.Master/Dockerfile
