@@ -1,4 +1,7 @@
-﻿using Logitar.Master.Extensions;
+﻿using Logitar.EventSourcing.EntityFrameworkCore.Relational;
+using Logitar.Master.EntityFrameworkCore;
+using Logitar.Master.EntityFrameworkCore.SqlServer;
+using Logitar.Master.Extensions;
 using Logitar.Master.Filters;
 using Logitar.Master.Infrastructure;
 using Logitar.Master.Settings;
@@ -33,7 +36,17 @@ internal class Startup : StartupBase
       services.AddOpenApi();
     }
 
-    services.AddLogitarMasterInfrastructure();
+    DatabaseProvider databaseProvider = _configuration.GetValue<DatabaseProvider?>("DatabaseProvider") ?? DatabaseProvider.EntityFrameworkCoreSqlServer;
+    switch (databaseProvider)
+    {
+      case DatabaseProvider.EntityFrameworkCoreSqlServer:
+        services.AddLogitarMasterWithEntityFrameworkCoreSqlServer(_configuration);
+        healthChecks.AddDbContextCheck<EventContext>();
+        healthChecks.AddDbContextCheck<MasterContext>();
+        break;
+      default:
+        throw new DatabaseProviderNotSupportedException(databaseProvider);
+    }
   }
 
   public override void Configure(IApplicationBuilder builder)

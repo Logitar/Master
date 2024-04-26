@@ -15,17 +15,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Logitar.EventSourcing.Infrastructure" Version="5.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageReference Include="Logitar.Data.SqlServer" Version="3.0.0" />
+    <PackageReference Include="Logitar.EventSourcing.EntityFrameworkCore.SqlServer" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logitar.Master.Application\Logitar.Master.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="System.Text.Json" />
-    <Using Include="System.Text.Json.Serialization" />
+    <ProjectReference Include="..\Logitar.Master.EntityFrameworkCore\Logitar.Master.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

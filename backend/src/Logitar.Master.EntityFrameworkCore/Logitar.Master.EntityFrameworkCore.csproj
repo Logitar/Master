@@ -15,17 +15,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Logitar.EventSourcing.Infrastructure" Version="5.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <ProjectReference Include="..\Logitar.Master.Infrastructure\Logitar.Master.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logitar.Master.Application\Logitar.Master.Application.csproj" />
+    <PackageReference Include="Logitar.EventSourcing.EntityFrameworkCore.Relational" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="System.Text.Json" />
-    <Using Include="System.Text.Json.Serialization" />
+    <Using Include="System.Reflection" />
+    <Using Include="System.Text" />
   </ItemGroup>
 
 </Project>

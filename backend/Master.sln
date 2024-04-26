@@ -22,6 +22,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Contracts", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Infrastructure", "src\Logitar.Master.Infrastructure\Logitar.Master.Infrastructure.csproj", "{4609D92F-C8C6-4F21-B76D-9A40CCF07BD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFrameworkCore", "src\Logitar.Master.EntityFrameworkCore\Logitar.Master.EntityFrameworkCore.csproj", "{24E6FB66-4EB6-4612-B61E-43CD55D6203A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.EntityFrameworkCore.SqlServer", "src\Logitar.Master.EntityFrameworkCore.SqlServer\Logitar.Master.EntityFrameworkCore.SqlServer.csproj", "{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +52,14 @@ Global
 		{4609D92F-C8C6-4F21-B76D-9A40CCF07BD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4609D92F-C8C6-4F21-B76D-9A40CCF07BD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4609D92F-C8C6-4F21-B76D-9A40CCF07BD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24E6FB66-4EB6-4612-B61E-43CD55D6203A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24E6FB66-4EB6-4612-B61E-43CD55D6203A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24E6FB66-4EB6-4612-B61E-43CD55D6203A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24E6FB66-4EB6-4612-B61E-43CD55D6203A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{448F5F9C-2F5A-48D5-AA28-5AC5A2731823}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

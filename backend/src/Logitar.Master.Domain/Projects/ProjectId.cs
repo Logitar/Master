@@ -14,10 +14,7 @@ public record ProjectId
 
   private ProjectId(string value)
   {
-    value = value.Trim();
-    // TODO(fpion): validate value
-
-    AggregateId = new(value);
+    AggregateId = new(value.Trim());
   }
 
   public static ProjectId NewId() => new(AggregateId.NewId());
