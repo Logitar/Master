@@ -1,0 +1,14 @@
+version: '3.8'
+name: logitar_master
+services:
+  logitar_master_backend:
+    build:
+      context: ./backend
+      dockerfile: /src/Logitar.Master/Dockerfile
+    image: logitar_master_backend
+    container_name: Logitar.Master_backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_Environment: Development
+    ports:
+      - 8091:8080
