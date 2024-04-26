@@ -34,7 +34,7 @@ public class CreateProjectCommandTests : IntegrationTests
     Assert.True(project.CreatedOn < project.UpdatedOn);
 
     Assert.Equal(payload.UniqueKey.Trim(), project.UniqueKey);
-    Assert.Equal(payload.DisplayName?.CleanTrim(), project.DisplayName);
+    Assert.Equal(payload.DisplayName.Trim(), project.DisplayName);
     Assert.Equal(payload.Description?.CleanTrim(), project.Description);
 
     ProjectEntity? entity = await MasterContext.Projects.AsNoTracking()
