@@ -1,6 +1,5 @@
 ﻿using Logitar.Master.Extensions;
 using Logitar.Master.Settings;
-using System.Text.Json.Serialization;
 
 namespace Logitar.Master;
 
