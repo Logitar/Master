@@ -1,4 +1,9 @@
-﻿using Logitar.Master.Extensions;
+﻿using Logitar.EventSourcing.EntityFrameworkCore.Relational;
+using Logitar.Master.EntityFrameworkCore;
+using Logitar.Master.EntityFrameworkCore.SqlServer;
+using Logitar.Master.Extensions;
+using Logitar.Master.Filters;
+using Logitar.Master.Infrastructure;
 using Logitar.Master.Settings;
 
 namespace Logitar.Master;
@@ -16,7 +21,7 @@ internal class Startup : StartupBase
 
   public override void ConfigureServices(IServiceCollection services)
   {
-    services.AddControllers()
+    services.AddControllers(options => options.Filters.Add<ExceptionHandling>())
       .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
     CorsSettings corsSettings = _configuration.GetSection("Cors").Get<CorsSettings>() ?? new();
@@ -29,6 +34,18 @@ internal class Startup : StartupBase
     if (_enableOpenApi)
     {
       services.AddOpenApi();
+    }
+
+    DatabaseProvider databaseProvider = _configuration.GetValue<DatabaseProvider?>("DatabaseProvider") ?? DatabaseProvider.EntityFrameworkCoreSqlServer;
+    switch (databaseProvider)
+    {
+      case DatabaseProvider.EntityFrameworkCoreSqlServer:
+        services.AddLogitarMasterWithEntityFrameworkCoreSqlServer(_configuration);
+        healthChecks.AddDbContextCheck<EventContext>();
+        healthChecks.AddDbContextCheck<MasterContext>();
+        break;
+      default:
+        throw new DatabaseProviderNotSupportedException(databaseProvider);
     }
   }
 
