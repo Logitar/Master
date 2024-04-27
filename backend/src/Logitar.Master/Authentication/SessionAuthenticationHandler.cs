@@ -1,4 +1,5 @@
-﻿using Logitar.Master.Extensions;
+﻿using Logitar.Master.Application.Accounts;
+using Logitar.Master.Extensions;
 using Logitar.Portal.Contracts.Sessions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -7,12 +8,12 @@ namespace Logitar.Master.Authentication;
 
 internal class SessionAuthenticationHandler : AuthenticationHandler<SessionAuthenticationOptions>
 {
-  private readonly IActivityPipeline _activityPipeline;
+  private readonly ISessionService _sessionService;
 
-  public SessionAuthenticationHandler(IActivityPipeline activityPipeline, IOptionsMonitor<SessionAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+  public SessionAuthenticationHandler(ISessionService sessionService, IOptionsMonitor<SessionAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder)
     : base(options, logger, encoder)
   {
-    _activityPipeline = activityPipeline;
+    _sessionService = sessionService;
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -20,8 +21,7 @@ internal class SessionAuthenticationHandler : AuthenticationHandler<SessionAuthe
     Guid? sessionId = Context.GetSessionId();
     if (sessionId.HasValue)
     {
-      ReadSessionQuery query = new(sessionId.Value);
-      Session? session = await _activityPipeline.ExecuteAsync(query, new ContextParameters());
+      Session? session = await _sessionService.ReadAsync(sessionId.Value);
       if (session == null)
       {
         return Fail($"The session 'Id={sessionId}' could not be found.");

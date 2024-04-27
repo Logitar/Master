@@ -25,7 +25,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
   public async Task<SignInCommandResult> Handle(SignInCommand command, CancellationToken cancellationToken)
   {
     SignInPayload payload = command.Payload;
-    // TODO(fpion): validation payload
+    // TODO(fpion): validate payload
 
     if (payload.Credentials != null)
     {

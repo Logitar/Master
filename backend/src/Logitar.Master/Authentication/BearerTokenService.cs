@@ -8,9 +8,14 @@ namespace Logitar.Master.Authentication;
 
 internal class BearerTokenService : IBearerTokenService
 {
+  private const string AccessTokenType = "at+jwt";
+
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly BearerTokenSettings _settings;
   private readonly JwtSecurityTokenHandler _tokenHandler = new();
+
+  private string? BaseUrl => _httpContextAccessor.HttpContext?.GetBaseUri().ToString();
+  private SymmetricSecurityKey SecurityKey => new(Encoding.ASCII.GetBytes(_settings.Secret));
 
   public BearerTokenService(IHttpContextAccessor httpContextAccessor, BearerTokenSettings settings)
   {
@@ -22,20 +27,14 @@ internal class BearerTokenService : IBearerTokenService
 
   public TokenResponse GetTokenResponse(Session session)
   {
-    string? baseUrl = null;
-    if (_httpContextAccessor.HttpContext != null)
-    {
-      baseUrl = _httpContextAccessor.HttpContext.GetBaseUri().ToString();
-    }
-
     SecurityTokenDescriptor tokenDescriptor = new()
     {
-      Audience = baseUrl,
+      Audience = BaseUrl,
       Expires = DateTime.UtcNow.AddSeconds(_settings.LifetimeSeconds),
-      Issuer = baseUrl,
-      SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_settings.Secret)), SecurityAlgorithms.HmacSha256),
+      Issuer = BaseUrl,
+      SigningCredentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256),
       Subject = session.CreateClaimsIdentity(),
-      TokenType = _settings.TokenType
+      TokenType = AccessTokenType
     };
     SecurityToken securityToken = _tokenHandler.CreateToken(tokenDescriptor);
     string accessToken = _tokenHandler.WriteToken(securityToken);
@@ -45,5 +44,19 @@ internal class BearerTokenService : IBearerTokenService
       ExpiresIn = _settings.LifetimeSeconds,
       RefreshToken = session.RefreshToken
     };
+  }
+
+  public ClaimsPrincipal ValidateToken(string token)
+  {
+    return _tokenHandler.ValidateToken(token, new TokenValidationParameters
+    {
+      IssuerSigningKey = SecurityKey,
+      ValidAudience = BaseUrl,
+      ValidIssuer = BaseUrl,
+      ValidTypes = [AccessTokenType],
+      ValidateAudience = true,
+      ValidateIssuer = true,
+      ValidateIssuerSigningKey = true
+    }, out _);
   }
 }

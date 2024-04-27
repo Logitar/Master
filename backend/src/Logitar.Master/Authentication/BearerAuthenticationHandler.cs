@@ -1,8 +1,9 @@
-﻿using Logitar.Master.Constants;
+﻿using Logitar.Master.Application.Accounts;
+using Logitar.Master.Constants;
 using Logitar.Master.Extensions;
 using Logitar.Portal.Contracts.Constants;
-using Logitar.Portal.Contracts.Tokens;
 using Logitar.Portal.Contracts.Users;
+using Logitar.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -11,12 +12,14 @@ namespace Logitar.Master.Authentication;
 
 internal class BearerAuthenticationHandler : AuthenticationHandler<BearerAuthenticationOptions>
 {
-  private readonly IActivityPipeline _activityPipeline;
+  private readonly IBearerTokenService _bearerTokenService;
+  private readonly IUserService _userService;
 
-  public BearerAuthenticationHandler(IActivityPipeline activityPipeline, IOptionsMonitor<BearerAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+  public BearerAuthenticationHandler(IBearerTokenService bearerTokenService, IUserService userService, IOptionsMonitor<BearerAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder)
     : base(options, logger, encoder)
   {
-    _activityPipeline = activityPipeline;
+    _bearerTokenService = bearerTokenService;
+    _userService = userService;
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -35,27 +38,27 @@ internal class BearerAuthenticationHandler : AuthenticationHandler<BearerAuthent
         {
           try
           {
-            ValidateTokenPayload payload = new(values[1])
+            ClaimsPrincipal principal = _bearerTokenService.ValidateToken(values[1]);
+            Claim[] subjects = principal.FindAll(Rfc7519ClaimNames.Subject).ToArray();
+            if (subjects.Length < 1)
             {
-              Type = "at+jwt"
-            };
-            ValidateTokenCommand command = new(payload);
-            ValidatedToken validatedToken = await _activityPipeline.ExecuteAsync(command, new ContextParameters());
-            if (string.IsNullOrWhiteSpace(validatedToken.Subject))
-            {
-              return AuthenticateResult.Fail($"The '{nameof(validatedToken.Subject)}' claim is required.");
+              return AuthenticateResult.Fail($"The '{Rfc7519ClaimNames.Subject}' claim is required.");
             }
+            else if (subjects.Length > 1)
+            {
+              return AuthenticateResult.Fail($"Only one '{Rfc7519ClaimNames.Subject}' claim value is supported.");
+            }
+            Claim subject = subjects[0];
 
-            ReadUserQuery query = new(Id: Guid.Parse(validatedToken.Subject.Trim()), UniqueName: null, Identifier: null);
-            User? user = await _activityPipeline.ExecuteAsync(query, new ContextParameters());
+            User? user = await _userService.ReadAsync(Guid.Parse(subject.Value));
             if (user == null)
             {
-              return AuthenticateResult.Fail($"The user 'Id={validatedToken.Subject}' could not be found.");
+              return AuthenticateResult.Fail($"The user 'Id={subject.Value}' could not be found.");
             }
 
             Context.SetUser(user);
 
-            ClaimsPrincipal principal = new(user.CreateClaimsIdentity(Scheme.Name));
+            principal = new(user.CreateClaimsIdentity(Scheme.Name));
             AuthenticationTicket ticket = new(principal, Scheme.Name);
 
             return AuthenticateResult.Success(ticket);

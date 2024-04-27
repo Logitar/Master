@@ -6,4 +6,5 @@ namespace Logitar.Master.Authentication;
 public interface IBearerTokenService
 {
   TokenResponse GetTokenResponse(Session session);
+  ClaimsPrincipal ValidateToken(string token);
 }
