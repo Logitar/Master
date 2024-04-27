@@ -50,7 +50,7 @@ internal class BearerAuthenticationHandler : AuthenticationHandler<BearerAuthent
             }
             Claim subject = subjects[0];
 
-            User? user = await _userService.ReadAsync(Guid.Parse(subject.Value));
+            User? user = await _userService.FindAsync(Guid.Parse(subject.Value));
             if (user == null)
             {
               return AuthenticateResult.Fail($"The user 'Id={subject.Value}' could not be found.");

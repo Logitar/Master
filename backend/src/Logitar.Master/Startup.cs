@@ -9,6 +9,7 @@ using Logitar.Master.Filters;
 using Logitar.Master.Infrastructure;
 using Logitar.Master.Middlewares;
 using Logitar.Master.Settings;
+using Logitar.Portal.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
@@ -49,7 +50,7 @@ internal class Startup : StartupBase
       authenticationBuilder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(Schemes.Basic, options => { });
     }
 
-    services.AddAuthorizationBuilder().SetDefaultPolicy(new AuthorizationPolicyBuilder()
+    services.AddAuthorizationBuilder().SetDefaultPolicy(new AuthorizationPolicyBuilder(_authenticationSchemes)
       .RequireAuthenticatedUser()
       .Build());
 
@@ -82,6 +83,7 @@ internal class Startup : StartupBase
         throw new DatabaseProviderNotSupportedException(databaseProvider);
     }
 
+    services.AddLogitarPortalClient(_configuration);
     services.AddTransient<IRequestPipeline, HttpRequestPipeline>();
   }
 

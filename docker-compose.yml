@@ -11,6 +11,19 @@ services:
     ports:
       - 1441:1433
 
+  logitar_master_portal:
+    image: fpion/portal:v4.1.0
+    container_name: Logitar.Master_portal
+    depends_on:
+      - logitar_master_mssql
+    restart: unless-stopped
+    environment:
+      EnableBasicAuthentication: "true"
+      EnableMigrations: "true"
+      SQLCONNSTR_Portal: "Server=logitar_master_mssql;Database=Portal;User Id=SA;Password=Y2tk8H5vxZQfhDTP;Persist Security Info=False;Encrypt=False;"
+    ports:
+      - 8891:8080
+
   logitar_master_backend:
     build:
       context: ./backend

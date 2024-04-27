@@ -5,6 +5,6 @@ namespace Logitar.Master.Application.Accounts;
 
 public interface ISessionService
 {
-  Task<Session?> ReadAsync(Guid id, CancellationToken cancellationToken = default);
-  Task<Session> RenewAsync(string refreshToken, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken = default);
+  Task<Session?> FindAsync(Guid id, CancellationToken cancellationToken = default);
+  Task<Session> RenewAsync(string refreshToken, IEnumerable<CustomAttribute>? customAttributes = null, CancellationToken cancellationToken = default);
 }

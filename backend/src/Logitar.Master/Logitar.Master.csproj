@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Logitar.Net" Version="6.1.0" />
+    <PackageReference Include="Logitar.Portal.Client" Version="4.1.0" />
     <PackageReference Include="Logitar.Security" Version="6.1.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">

@@ -1,8 +1,10 @@
 ﻿using Logitar.EventSourcing.Infrastructure;
 using Logitar.Master.Application;
+using Logitar.Master.Application.Accounts;
 using Logitar.Master.Application.Caching;
 using Logitar.Master.Infrastructure.Caching;
 using Logitar.Master.Infrastructure.Converters;
+using Logitar.Master.Infrastructure.IdentityServices;
 using Logitar.Master.Infrastructure.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,11 +18,23 @@ public static class DependencyInjectionExtensions
     return services
       .AddLogitarEventSourcingInfrastructure()
       .AddLogitarMasterApplication()
+      .AddIdentityServices()
       .AddMemoryCache()
       .AddSingleton(InitializeCachingSettings)
       .AddSingleton<ICacheService, CacheService>()
       .AddSingleton<IEventSerializer>(BuildEventSerializer)
       .AddTransient<IEventBus, EventBus>();
+  }
+
+  private static IServiceCollection AddIdentityServices(this IServiceCollection services)
+  {
+    return services
+      .AddTransient<IMessageService, MessageService>()
+      //.AddTransient<IOneTimePasswordService, OneTimePasswordService>()
+      //.AddTransient<IRealmService, RealmService>()
+      .AddTransient<ISessionService, SessionService>()
+      .AddTransient<ITokenService, TokenService>()
+      .AddTransient<IUserService, UserService>();
   }
 
   private static EventSerializer BuildEventSerializer(IServiceProvider serviceProvider)

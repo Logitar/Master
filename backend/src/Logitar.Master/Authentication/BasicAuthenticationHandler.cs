@@ -43,7 +43,7 @@ internal class BasicAuthenticationHandler : AuthenticationHandler<BasicAuthentic
 
           try
           {
-            User user = await _userService.AuthenticateAsync(username: credentials[..index], password: credentials[(index + 1)..]);
+            User user = await _userService.AuthenticateAsync(uniqueName: credentials[..index], password: credentials[(index + 1)..]);
 
             Context.SetUser(user);
 
