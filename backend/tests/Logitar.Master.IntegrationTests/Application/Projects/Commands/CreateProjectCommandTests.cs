@@ -27,10 +27,11 @@ public class CreateProjectCommandTests : IntegrationTests
       Description = "    "
     };
     CreateProjectCommand command = new(payload);
-    Project project = await Mediator.Send(command);
+    Project project = await Pipeline.ExecuteAsync(command);
 
     Assert.Equal(2, project.Version);
-    // TODO(fpion): CreatedBy, UpdatedBy
+    Assert.Equal(Actor, project.CreatedBy);
+    Assert.Equal(Actor, project.UpdatedBy);
     Assert.True(project.CreatedOn < project.UpdatedOn);
 
     Assert.Equal(payload.UniqueKey.Trim(), project.UniqueKey);
@@ -50,7 +51,7 @@ public class CreateProjectCommandTests : IntegrationTests
 
     CreateProjectPayload payload = new(project.UniqueKey.Value);
     CreateProjectCommand command = new(payload);
-    var exception = await Assert.ThrowsAsync<UniqueKeyAlreadyUsedException>(async () => await Mediator.Send(command));
+    var exception = await Assert.ThrowsAsync<UniqueKeyAlreadyUsedException>(async () => await Pipeline.ExecuteAsync(command));
     Assert.Equal(payload.UniqueKey, exception.UniqueKey.Value);
     Assert.Equal("UniqueKey", exception.PropertyName);
   }
@@ -60,7 +61,7 @@ public class CreateProjectCommandTests : IntegrationTests
   {
     CreateProjectPayload payload = new("MASTER123!");
     CreateProjectCommand command = new(payload);
-    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Mediator.Send(command));
+    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Pipeline.ExecuteAsync(command));
 
     ValidationFailure error = Assert.Single(exception.Errors);
     Assert.Equal("AllowedCharactersValidator", error.ErrorCode);

@@ -19,7 +19,7 @@ public class UpdateProjectCommandTests : IntegrationTests
   {
     _projectRepository = ServiceProvider.GetRequiredService<IProjectRepository>();
 
-    _project = new(new UniqueKeyUnit("MASTER"));
+    _project = new(new UniqueKeyUnit("MASTER"), ActorId);
   }
 
   public override async Task InitializeAsync()
@@ -34,7 +34,7 @@ public class UpdateProjectCommandTests : IntegrationTests
   {
     UpdateProjectPayload payload = new();
     UpdateProjectCommand command = new(Id: Guid.Empty, payload);
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.Null(project);
   }
 
@@ -46,7 +46,7 @@ public class UpdateProjectCommandTests : IntegrationTests
       DisplayName = new Change<string>(RandomStringGenerator.GetString(DisplayNameUnit.MaximumLength + 1))
     };
     UpdateProjectCommand command = new(_project.Id.ToGuid(), payload);
-    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Mediator.Send(command));
+    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Pipeline.ExecuteAsync(command));
 
     ValidationFailure error = Assert.Single(exception.Errors);
     Assert.Equal("MaximumLengthValidator", error.ErrorCode);
@@ -58,7 +58,7 @@ public class UpdateProjectCommandTests : IntegrationTests
   {
     _project.DisplayName = new DisplayNameUnit("Master");
     _project.Description = new DescriptionUnit("This is the master project.");
-    _project.Update();
+    _project.Update(ActorId);
     await _projectRepository.SaveAsync(_project);
 
     UpdateProjectPayload payload = new()
@@ -66,12 +66,13 @@ public class UpdateProjectCommandTests : IntegrationTests
       Description = new Change<string>("    ")
     };
     UpdateProjectCommand command = new(_project.Id.ToGuid(), payload);
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.NotNull(project);
 
     Assert.Equal(_project.Id.ToGuid(), project.Id);
     Assert.Equal(3, project.Version);
-    // TODO(fpion): CreatedBy, UpdatedBy
+    Assert.Equal(Actor, project.CreatedBy);
+    Assert.Equal(Actor, project.UpdatedBy);
     Assert.True(project.CreatedOn < project.UpdatedOn);
 
     Assert.Equal(_project.UniqueKey.Value, project.UniqueKey);

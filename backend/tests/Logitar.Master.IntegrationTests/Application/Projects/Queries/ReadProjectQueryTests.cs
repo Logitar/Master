@@ -31,7 +31,7 @@ public class ReadProjectQueryTests : IntegrationTests
   public async Task It_should_return_null_when_no_project_was_found()
   {
     ReadProjectQuery query = new(Id: Guid.Empty, UniqueKey: "test");
-    Project? project = await Mediator.Send(query);
+    Project? project = await Pipeline.ExecuteAsync(query);
     Assert.Null(project);
   }
 
@@ -39,7 +39,7 @@ public class ReadProjectQueryTests : IntegrationTests
   public async Task It_should_return_the_project_found_by_Id()
   {
     ReadProjectQuery query = new(Id: _master.Id.ToGuid(), UniqueKey: null);
-    Project? project = await Mediator.Send(query);
+    Project? project = await Pipeline.ExecuteAsync(query);
     Assert.NotNull(project);
     Assert.Equal(_master.Id.ToGuid(), project.Id);
   }
@@ -48,7 +48,7 @@ public class ReadProjectQueryTests : IntegrationTests
   public async Task It_should_return_the_project_found_by_unique_key()
   {
     ReadProjectQuery query = new(Id: null, UniqueKey: "  portal  ");
-    Project? project = await Mediator.Send(query);
+    Project? project = await Pipeline.ExecuteAsync(query);
     Assert.NotNull(project);
     Assert.Equal(_portal.Id.ToGuid(), project.Id);
   }
@@ -57,7 +57,7 @@ public class ReadProjectQueryTests : IntegrationTests
   public async Task It_should_throw_TooManyResultsException_when_many_projects_were_found()
   {
     ReadProjectQuery query = new(_master.Id.ToGuid(), UniqueKey: "  portal  ");
-    var exception = await Assert.ThrowsAsync<TooManyResultsException<Project>>(async () => await Mediator.Send(query));
+    var exception = await Assert.ThrowsAsync<TooManyResultsException<Project>>(async () => await Pipeline.ExecuteAsync(query));
     Assert.Equal(1, exception.ExpectedCount);
     Assert.Equal(2, exception.ActualCount);
   }

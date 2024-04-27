@@ -31,7 +31,7 @@ public class DeleteProjectCommandTests : IntegrationTests
   public async Task It_should_delete_an_existing_project()
   {
     DeleteProjectCommand command = new(_project.Id.ToGuid());
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.NotNull(project);
     Assert.Equal(_project.Id.ToGuid(), project.Id);
 
@@ -44,7 +44,7 @@ public class DeleteProjectCommandTests : IntegrationTests
   public async Task It_should_return_null_when_the_project_cannot_be_found()
   {
     DeleteProjectCommand command = new(Id: Guid.Empty);
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.Null(project);
   }
 }
