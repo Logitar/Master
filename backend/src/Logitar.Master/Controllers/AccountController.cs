@@ -1,11 +1,11 @@
-﻿using Logitar.Master.Application.Accounts;
+﻿using Logitar.Master.Application;
+using Logitar.Master.Application.Accounts;
 using Logitar.Master.Application.Accounts.Commands;
 using Logitar.Master.Authentication;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Master.Extensions;
 using Logitar.Master.Models.Account;
 using Logitar.Portal.Contracts.Sessions;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logitar.Master.Controllers;
@@ -14,20 +14,20 @@ namespace Logitar.Master.Controllers;
 public class AccountController : ControllerBase
 {
   private readonly IBearerTokenService _bearerTokenService;
-  private readonly ISender _sender;
+  private readonly IRequestPipeline _requestPipeline;
   private readonly ISessionService _sessionService;
 
-  public AccountController(IBearerTokenService bearerTokenService, ISender sender, ISessionService sessionService)
+  public AccountController(IBearerTokenService bearerTokenService, IRequestPipeline requestPipeline, ISessionService sessionService)
   {
     _bearerTokenService = bearerTokenService;
-    _sender = sender;
+    _requestPipeline = requestPipeline;
     _sessionService = sessionService;
   }
 
   [HttpPost("/auth/sign/in")]
   public async Task<ActionResult<SignInResponse>> SignInAsync([FromBody] SignInPayload payload, CancellationToken cancellationToken)
   {
-    SignInCommandResult result = await _sender.Send(new SignInCommand(payload, HttpContext.GetSessionCustomAttributes()), cancellationToken);
+    SignInCommandResult result = await _requestPipeline.ExecuteAsync(new SignInCommand(payload, HttpContext.GetSessionCustomAttributes()), cancellationToken);
     if (result.Session != null)
     {
       HttpContext.SignIn(result.Session);
@@ -48,7 +48,7 @@ public class AccountController : ControllerBase
     }
     else
     {
-      SignInCommandResult result = await _sender.Send(new SignInCommand(payload, HttpContext.GetSessionCustomAttributes()), cancellationToken);
+      SignInCommandResult result = await _requestPipeline.ExecuteAsync(new SignInCommand(payload, HttpContext.GetSessionCustomAttributes()), cancellationToken);
       response = new(result);
       session = result.Session;
     }

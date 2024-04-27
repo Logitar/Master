@@ -1,8 +1,6 @@
-﻿using Logitar.Portal.Contracts.Actors;
-
-namespace Logitar.Master.Application;
+﻿namespace Logitar.Master.Application;
 
 public interface IActivity
 {
-  void Populate(Actor actor);
+  void Contextualize(ActivityContext context);
 }

@@ -1,4 +1,5 @@
 ﻿using Logitar.EventSourcing.EntityFrameworkCore.Relational;
+using Logitar.Master.Application;
 using Logitar.Master.Authentication;
 using Logitar.Master.Constants;
 using Logitar.Master.EntityFrameworkCore;
@@ -80,6 +81,8 @@ internal class Startup : StartupBase
       default:
         throw new DatabaseProviderNotSupportedException(databaseProvider);
     }
+
+    services.AddTransient<IRequestPipeline, HttpRequestPipeline>();
   }
 
   public override void Configure(IApplicationBuilder builder)
