@@ -11,7 +11,7 @@ namespace Logitar.Master.Controllers;
 
 [ApiController]
 [Route("projects")]
-public class ProjectController : ControllerBase
+public class ProjectController : ControllerBase // TODO(fpion): Authorization
 {
   private readonly ISender _sender;
 
