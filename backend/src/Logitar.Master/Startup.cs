@@ -1,4 +1,5 @@
 ﻿using Logitar.EventSourcing.EntityFrameworkCore.Relational;
+using Logitar.Master.Authentication;
 using Logitar.Master.EntityFrameworkCore;
 using Logitar.Master.EntityFrameworkCore.SqlServer;
 using Logitar.Master.Extensions;
@@ -27,6 +28,10 @@ internal class Startup : StartupBase
     CorsSettings corsSettings = _configuration.GetSection("Cors").Get<CorsSettings>() ?? new();
     services.AddSingleton(corsSettings);
     services.AddCors(corsSettings);
+
+    BearerTokenSettings bearerTokenSettings = _configuration.GetSection("BearerToken").Get<BearerTokenSettings>() ?? new();
+    services.AddSingleton(bearerTokenSettings);
+    services.AddSingleton<IBearerTokenService, BearerTokenService>();
 
     services.AddApplicationInsightsTelemetry();
     IHealthChecksBuilder healthChecks = services.AddHealthChecks();
