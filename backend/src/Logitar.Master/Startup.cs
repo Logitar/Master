@@ -1,22 +1,27 @@
 ﻿using Logitar.EventSourcing.EntityFrameworkCore.Relational;
 using Logitar.Master.Authentication;
+using Logitar.Master.Constants;
 using Logitar.Master.EntityFrameworkCore;
 using Logitar.Master.EntityFrameworkCore.SqlServer;
 using Logitar.Master.Extensions;
 using Logitar.Master.Filters;
 using Logitar.Master.Infrastructure;
+using Logitar.Master.Middlewares;
 using Logitar.Master.Settings;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Logitar.Master;
 
 internal class Startup : StartupBase
 {
   private readonly IConfiguration _configuration;
+  private readonly string[] _authenticationSchemes;
   private readonly bool _enableOpenApi;
 
   public Startup(IConfiguration configuration)
   {
     _configuration = configuration;
+    _authenticationSchemes = Schemes.GetEnabled(configuration);
     _enableOpenApi = configuration.GetValue<bool>("EnableOpenApi");
   }
 
@@ -33,14 +38,14 @@ internal class Startup : StartupBase
     services.AddSingleton(bearerTokenSettings);
     services.AddSingleton<IBearerTokenService, BearerTokenService>();
 
-    //AuthenticationBuilder authenticationBuilder = services.AddAuthentication()
-    //  .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(Schemes.ApiKey, options => { })
-    //  .AddScheme<BearerAuthenticationOptions, BearerAuthenticationHandler>(Schemes.Bearer, options => { })
-    //  .AddScheme<SessionAuthenticationOptions, SessionAuthenticationHandler>(Schemes.Session, options => { });
-    //if (_authenticationSchemes.Contains(Schemes.Basic))
-    //{
-    //  authenticationBuilder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(Schemes.Basic, options => { });
-    //} // TODO(fpion): Authentication
+    AuthenticationBuilder authenticationBuilder = services.AddAuthentication()
+      .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(Schemes.ApiKey, options => { })
+      .AddScheme<BearerAuthenticationOptions, BearerAuthenticationHandler>(Schemes.Bearer, options => { })
+      .AddScheme<SessionAuthenticationOptions, SessionAuthenticationHandler>(Schemes.Session, options => { });
+    if (_authenticationSchemes.Contains(Schemes.Basic))
+    {
+      authenticationBuilder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(Schemes.Basic, options => { });
+    }
 
     //AuthorizationPolicy portalActorPolicy = new AuthorizationPolicyBuilder(_authenticationSchemes)
     //  .RequireAuthenticatedUser()
@@ -97,8 +102,8 @@ internal class Startup : StartupBase
     builder.UseHttpsRedirection();
     builder.UseCors();
     builder.UseSession();
-    //    builder.UseMiddleware<RenewSession>(); // TODO(fpion): RenewSession
-    //builder.UseAuthentication(); // TODO(fpion): Authentication
+    builder.UseMiddleware<RenewSession>();
+    builder.UseAuthentication();
     //builder.UseAuthorization(); // TODO(fpion): Authorization
 
     if (builder is WebApplication application)

@@ -1,6 +1,6 @@
 ﻿namespace Logitar.Master.Settings;
 
-public record SessionCookieSettings
+internal record SessionCookieSettings
 {
   public SameSiteMode SameSite { get; set; } = SameSiteMode.Strict;
 }
