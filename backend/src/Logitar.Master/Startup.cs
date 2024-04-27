@@ -9,6 +9,7 @@ using Logitar.Master.Infrastructure;
 using Logitar.Master.Middlewares;
 using Logitar.Master.Settings;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Logitar.Master;
 
@@ -47,20 +48,9 @@ internal class Startup : StartupBase
       authenticationBuilder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(Schemes.Basic, options => { });
     }
 
-    //AuthorizationPolicy portalActorPolicy = new AuthorizationPolicyBuilder(_authenticationSchemes)
-    //  .RequireAuthenticatedUser()
-    //  .AddRequirements(new PortalActorAuthorizationRequirement())
-    //  .Build();
-    //services.AddAuthorizationBuilder()
-    //  .SetDefaultPolicy(portalActorPolicy)
-    //  .AddPolicy(Policies.PortalActor, portalActorPolicy)
-    //  .AddPolicy(Policies.PortalUser, new AuthorizationPolicyBuilder(_authenticationSchemes)
-    //    .RequireAuthenticatedUser()
-    //    .AddRequirements(new PortalUserAuthorizationRequirement())
-    //    .Build()
-    //  );
-    //services.AddSingleton<IAuthorizationHandler, PortalActorAuthorizationHandler>();
-    //services.AddSingleton<IAuthorizationHandler, PortalUserAuthorizationHandler>(); // TODO(fpion): Authorization
+    services.AddAuthorizationBuilder().SetDefaultPolicy(new AuthorizationPolicyBuilder()
+      .RequireAuthenticatedUser()
+      .Build());
 
     CookiesSettings cookiesSettings = _configuration.GetSection("Cookies").Get<CookiesSettings>() ?? new();
     services.AddSingleton(cookiesSettings);
@@ -104,7 +94,7 @@ internal class Startup : StartupBase
     builder.UseSession();
     builder.UseMiddleware<RenewSession>();
     builder.UseAuthentication();
-    //builder.UseAuthorization(); // TODO(fpion): Authorization
+    builder.UseAuthorization();
 
     if (builder is WebApplication application)
     {
