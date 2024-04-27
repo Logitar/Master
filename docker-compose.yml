@@ -35,6 +35,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_Environment: Development
+      Portal:BaseUrl: http://logitar_master_portal:8080
       SQLCONNSTR_Master: "Server=logitar_master_mssql;Database=Master;User Id=SA;Password=Y2tk8H5vxZQfhDTP;Persist Security Info=False;Encrypt=False;"
     ports:
       - 8091:8080
