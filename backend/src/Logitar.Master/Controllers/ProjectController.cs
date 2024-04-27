@@ -5,13 +5,15 @@ using Logitar.Master.Contracts.Search;
 using Logitar.Master.Extensions;
 using Logitar.Master.Models.Projects;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logitar.Master.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("projects")]
-public class ProjectController : ControllerBase // TODO(fpion): Authorization
+public class ProjectController : ControllerBase
 {
   private readonly ISender _sender;
 

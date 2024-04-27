@@ -33,6 +33,39 @@ internal class Startup : StartupBase
     services.AddSingleton(bearerTokenSettings);
     services.AddSingleton<IBearerTokenService, BearerTokenService>();
 
+    //AuthenticationBuilder authenticationBuilder = services.AddAuthentication()
+    //  .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(Schemes.ApiKey, options => { })
+    //  .AddScheme<BearerAuthenticationOptions, BearerAuthenticationHandler>(Schemes.Bearer, options => { })
+    //  .AddScheme<SessionAuthenticationOptions, SessionAuthenticationHandler>(Schemes.Session, options => { });
+    //if (_authenticationSchemes.Contains(Schemes.Basic))
+    //{
+    //  authenticationBuilder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(Schemes.Basic, options => { });
+    //} // TODO(fpion): Authentication
+
+    //AuthorizationPolicy portalActorPolicy = new AuthorizationPolicyBuilder(_authenticationSchemes)
+    //  .RequireAuthenticatedUser()
+    //  .AddRequirements(new PortalActorAuthorizationRequirement())
+    //  .Build();
+    //services.AddAuthorizationBuilder()
+    //  .SetDefaultPolicy(portalActorPolicy)
+    //  .AddPolicy(Policies.PortalActor, portalActorPolicy)
+    //  .AddPolicy(Policies.PortalUser, new AuthorizationPolicyBuilder(_authenticationSchemes)
+    //    .RequireAuthenticatedUser()
+    //    .AddRequirements(new PortalUserAuthorizationRequirement())
+    //    .Build()
+    //  );
+    //services.AddSingleton<IAuthorizationHandler, PortalActorAuthorizationHandler>();
+    //services.AddSingleton<IAuthorizationHandler, PortalUserAuthorizationHandler>(); // TODO(fpion): Authorization
+
+    CookiesSettings cookiesSettings = _configuration.GetSection("Cookies").Get<CookiesSettings>() ?? new();
+    services.AddSingleton(cookiesSettings);
+    services.AddDistributedMemoryCache();
+    services.AddSession(options =>
+    {
+      options.Cookie.SameSite = cookiesSettings.Session.SameSite;
+      options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    });
+
     services.AddApplicationInsightsTelemetry();
     IHealthChecksBuilder healthChecks = services.AddHealthChecks();
 
@@ -63,6 +96,10 @@ internal class Startup : StartupBase
 
     builder.UseHttpsRedirection();
     builder.UseCors();
+    builder.UseSession();
+    //    builder.UseMiddleware<RenewSession>(); // TODO(fpion): RenewSession
+    //builder.UseAuthentication(); // TODO(fpion): Authentication
+    //builder.UseAuthorization(); // TODO(fpion): Authorization
 
     if (builder is WebApplication application)
     {

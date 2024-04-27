@@ -1,6 +1,7 @@
 ﻿using Logitar.Master.Application.Accounts.Commands;
 using Logitar.Master.Authentication;
 using Logitar.Master.Contracts.Accounts;
+using Logitar.Master.Extensions;
 using Logitar.Master.Models.Account;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ public class AccountController : ControllerBase
     SignInCommandResult result = await _sender.Send(new SignInCommand(payload), cancellationToken);
     if (result.Session != null)
     {
-      // TODO(fpion): SignIn
+      HttpContext.SignIn(result.Session);
     }
 
     return Ok(new SignInResponse(result));
