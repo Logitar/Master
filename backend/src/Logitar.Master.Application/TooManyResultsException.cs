@@ -1,4 +1,4 @@
-﻿using Logitar.Master.Contracts.Errors;
+﻿using Logitar.Portal.Contracts.Errors;
 
 namespace Logitar.Master.Application;
 
@@ -27,8 +27,8 @@ public class TooManyResultsException : BadRequestException
     get
     {
       Error error = new(this.GetErrorCode(), ErrorMessage);
-      error.Add(nameof(ExpectedCount), ExpectedCount.ToString());
-      error.Add(nameof(ActualCount), ActualCount.ToString());
+      error.AddData(nameof(ExpectedCount), ExpectedCount.ToString());
+      error.AddData(nameof(ActualCount), ActualCount.ToString());
       return error;
     }
   }
