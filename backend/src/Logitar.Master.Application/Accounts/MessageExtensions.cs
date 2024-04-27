@@ -1,7 +1,6 @@
 ﻿using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts.Messages;
 using Logitar.Portal.Contracts.Users;
-using System.Text;
 
 namespace Logitar.Master.Application.Accounts;
 
