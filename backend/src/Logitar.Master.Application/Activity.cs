@@ -17,14 +17,14 @@ public abstract record Activity : IActivity
         throw new InvalidOperationException($"The activity has been been contextualized yet. You must call the '{nameof(Contextualize)}' method.");
       }
 
-      if (_context.ApiKey != null)
-      {
-        return new Actor(_context.ApiKey);
-      }
-
       if (_context.User != null)
       {
         return new Actor(_context.User);
+      }
+
+      if (_context.ApiKey != null)
+      {
+        return new Actor(_context.ApiKey);
       }
 
       return _system;
