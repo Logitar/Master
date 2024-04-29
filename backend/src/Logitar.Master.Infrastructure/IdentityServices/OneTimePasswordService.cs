@@ -33,10 +33,13 @@ internal class OneTimePasswordService : IOneTimePasswordService
     return await _oneTimePasswordClient.CreateAsync(payload, context);
   }
 
-  public async Task<OneTimePassword?> ValidateAsync(OneTimePasswordPayload oneTimePassword, CancellationToken cancellationToken)
+  public async Task<OneTimePassword> ValidateAsync(OneTimePasswordPayload oneTimePasswordPayload, string purpose, CancellationToken cancellationToken)
   {
-    ValidateOneTimePasswordPayload payload = new(oneTimePassword.Code);
+    ValidateOneTimePasswordPayload payload = new(oneTimePasswordPayload.Code);
     RequestContext context = new(cancellationToken);
-    return await _oneTimePasswordClient.ValidateAsync(oneTimePassword.Id, payload, context);
+    OneTimePassword oneTimePassword = await _oneTimePasswordClient.ValidateAsync(oneTimePasswordPayload.Id, payload, context)
+      ?? throw new OneTimePasswordNotFoundException(oneTimePasswordPayload.Id);
+    oneTimePassword.EnsurePurpose(purpose);
+    return oneTimePassword;
   }
 }

@@ -1,5 +1,6 @@
 ﻿using Logitar.Identity.Contracts;
 using Logitar.Master.Application.Accounts;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Users;
 
@@ -47,13 +48,44 @@ internal class UserService : IUserService
     return await _userClient.ReadAsync(id, uniqueName: null, identifier: null, context);
   }
 
-  public async Task<User> UpdateEmailAsync(User user, CancellationToken cancellationToken)
+  public async Task<User> SaveProfileAsync(Guid userId, SaveProfilePayload profile, CancellationToken cancellationToken)
   {
     UpdateUserPayload payload = new()
     {
-      Email = new Modification<EmailPayload>(user.Email == null ? null : new EmailPayload(user.Email.Address, user.Email.IsVerified))
+      FirstName = new Modification<string>(profile.FirstName),
+      MiddleName = new Modification<string>(profile.MiddleName),
+      LastName = new Modification<string>(profile.LastName),
+      Birthdate = new Modification<DateTime?>(profile.Birthdate),
+      Gender = new Modification<string>(profile.Gender),
+      Locale = new Modification<string>(profile.Locale),
+      TimeZone = new Modification<string>(profile.TimeZone)
     };
-    RequestContext context = new(user.Id.ToString(), cancellationToken);
-    return await _userClient.UpdateAsync(user.Id, payload, context) ?? throw new InvalidOperationException($"The user 'Id={user.Id}' could not be found.");
+
+    if (profile is CompleteProfilePayload completedProfile)
+    {
+      if (completedProfile.Password != null)
+      {
+        payload.Password = new ChangePasswordPayload(completedProfile.Password);
+      }
+      if (completedProfile.PhoneNumber != null)
+      {
+        payload.Phone = new Modification<PhonePayload>(new PhonePayload(countryCode: null, completedProfile.PhoneNumber, extension: null, isVerified: false)); // TODO(fpion): CountryCode? IsVerified?
+      }
+      payload.CompleteProfile();
+      payload.SetMultiFactorAuthenticationMode(completedProfile.MultiFactorAuthenticationMode);
+    }
+
+    RequestContext context = new(userId.ToString(), cancellationToken);
+    return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
+  }
+
+  public async Task<User> UpdateEmailAsync(Guid userId, Email email, CancellationToken cancellationToken)
+  {
+    UpdateUserPayload payload = new()
+    {
+      Email = new Modification<EmailPayload>(new EmailPayload(email.Address, email.IsVerified))
+    };
+    RequestContext context = new(userId.ToString(), cancellationToken);
+    return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
   }
 }

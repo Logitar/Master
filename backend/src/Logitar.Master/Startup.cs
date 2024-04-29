@@ -83,7 +83,7 @@ internal class Startup : StartupBase
         throw new DatabaseProviderNotSupportedException(databaseProvider);
     }
 
-    services.AddLogitarPortalClient(_configuration);
+    services.AddLogitarPortalClient(_configuration); // TODO(fpion): seeding
     services.AddTransient<IRequestPipeline, HttpRequestPipeline>();
   }
 

@@ -4,7 +4,7 @@ using Logitar.Portal.Contracts.Users;
 
 namespace Logitar.Master.Application.Accounts;
 
-internal static class MessageExtensions
+public static class MessageExtensions
 {
   private const string Base12Table = "2345679ACDEF";
   private const string Base32Table = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

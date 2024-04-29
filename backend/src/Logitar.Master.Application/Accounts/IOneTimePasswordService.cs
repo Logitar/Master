@@ -7,5 +7,5 @@ namespace Logitar.Master.Application.Accounts;
 public interface IOneTimePasswordService
 {
   Task<OneTimePassword> CreateAsync(User user, string purpose, CancellationToken cancellationToken = default);
-  Task<OneTimePassword?> ValidateAsync(OneTimePasswordPayload payload, CancellationToken cancellationToken = default);
+  Task<OneTimePassword> ValidateAsync(OneTimePasswordPayload payload, string purpose, CancellationToken cancellationToken = default);
 }

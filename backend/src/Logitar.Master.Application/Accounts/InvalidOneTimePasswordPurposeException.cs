@@ -4,7 +4,7 @@ using Logitar.Portal.Contracts.Passwords;
 
 namespace Logitar.Master.Application.Accounts;
 
-internal class InvalidOneTimePasswordPurposeException : BadRequestException
+public class InvalidOneTimePasswordPurposeException : BadRequestException
 {
   private const string ErrorMessage = "The specified purpose did not match the expected One-Time Passord (OTP) purpose.";
 

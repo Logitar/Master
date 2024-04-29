@@ -3,7 +3,7 @@ using Logitar.Portal.Contracts.Errors;
 
 namespace Logitar.Master.Application.Accounts;
 
-internal class OneTimePasswordNotFoundException : BadRequestException
+public class OneTimePasswordNotFoundException : BadRequestException
 {
   private const string ErrorMessage = "The specified One-Time Password (OTP) could not be found.";
 

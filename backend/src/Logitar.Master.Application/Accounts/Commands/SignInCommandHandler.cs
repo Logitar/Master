@@ -50,6 +50,10 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     {
       return await HandleOneTimePasswordAsync(payload.OneTimePassword, command.CustomAttributes, cancellationToken);
     }
+    else if (payload.Profile != null)
+    {
+      return await CompleteProfileAsync(payload.Profile, command.CustomAttributes, cancellationToken);
+    }
 
     throw new InvalidOperationException($"The {nameof(SignInPayload)} is not valid.");
   }
@@ -79,7 +83,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     MultiFactorAuthenticationMode? mfaMode = user.GetMultiFactorAuthenticationMode();
     if (mfaMode == MultiFactorAuthenticationMode.None && user.IsProfileCompleted())
     {
-      Session session = await _sessionService.SignInAsync(user, credentials.Password, customAttributes, cancellationToken);
+      Session session = await _sessionService.SignInAsync(user, credentials.Password, customAttributes, cancellationToken); // TODO(fpion): create actor
       return SignInCommandResult.Succeed(session);
     }
     else
@@ -142,8 +146,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
       if (email != null && (user.Email == null || user.Email.Address != email.Address || user.Email.IsVerified != email.IsVerified))
       {
-        user.Email = email;
-        user = await _userService.UpdateEmailAsync(user, cancellationToken);
+        user = await _userService.UpdateEmailAsync(user.Id, email, cancellationToken);
       }
     }
 
@@ -152,10 +155,23 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private async Task<SignInCommandResult> HandleOneTimePasswordAsync(OneTimePasswordPayload payload, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
-    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, cancellationToken) ?? throw new OneTimePasswordNotFoundException(payload.Id);
-    oneTimePassword.EnsurePurpose(MultiFactorAuthenticationPurpose);
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, MultiFactorAuthenticationPurpose, cancellationToken);
     Guid userId = oneTimePassword.GetUserId();
     User user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
+
+    return await EnsureProfileIsCompleted(user, customAttributes, cancellationToken);
+  }
+
+  private async Task<SignInCommandResult> CompleteProfileAsync(CompleteProfilePayload payload, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
+  {
+    ValidatedToken validatedToken = await _tokenService.ValidateAsync(payload.Token, ProfileTokenType, cancellationToken);
+    if (validatedToken.Subject == null)
+    {
+      throw new InvalidOperationException($"The claim '{validatedToken.Subject}' is required.");
+    }
+    Guid userId = Guid.Parse(validatedToken.Subject);
+    User user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
+    user = await _userService.SaveProfileAsync(user.Id, payload, cancellationToken);
 
     return await EnsureProfileIsCompleted(user, customAttributes, cancellationToken);
   }
@@ -168,7 +184,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       return SignInCommandResult.RequireProfileCompletion(token);
     }
 
-    Session session = await _sessionService.CreateAsync(user, customAttributes, cancellationToken);
+    Session session = await _sessionService.CreateAsync(user, customAttributes, cancellationToken); // TODO(fpion): create actor
     return SignInCommandResult.Succeed(session);
   }
 }
