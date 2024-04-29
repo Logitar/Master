@@ -139,7 +139,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       if (email != null && (user.Email == null || user.Email.Address != email.Address || user.Email.IsVerified != email.IsVerified))
       {
         user.Email = email;
-        await _userService.UpdateEmailAsync(user, cancellationToken);
+        user = await _userService.UpdateEmailAsync(user, cancellationToken);
       }
     }
 

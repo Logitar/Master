@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Logitar.Master.Application.UnitTests" />
+    <InternalsVisibleTo Include="Logitar.Master.IntegrationTests" />
   </ItemGroup>
 
 </Project>

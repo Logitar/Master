@@ -1,4 +1,5 @@
-﻿using Logitar.Master.Application.Accounts;
+﻿using Logitar.Identity.Contracts;
+using Logitar.Master.Application.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Users;
 
@@ -46,8 +47,13 @@ internal class UserService : IUserService
     return await _userClient.ReadAsync(id, uniqueName: null, identifier: null, context);
   }
 
-  public Task<User?> UpdateEmailAsync(User user, CancellationToken cancellationToken = default)
+  public async Task<User> UpdateEmailAsync(User user, CancellationToken cancellationToken)
   {
-    throw new NotImplementedException();
+    UpdateUserPayload payload = new()
+    {
+      Email = new Modification<EmailPayload>(user.Email == null ? null : new EmailPayload(user.Email.Address, user.Email.IsVerified))
+    };
+    RequestContext context = new(user.Id.ToString(), cancellationToken);
+    return await _userClient.UpdateAsync(user.Id, payload, context) ?? throw new InvalidOperationException($"The user 'Id={user.Id}' could not be found.");
   }
 }

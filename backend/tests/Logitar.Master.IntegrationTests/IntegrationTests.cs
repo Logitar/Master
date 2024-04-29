@@ -4,6 +4,7 @@ using Logitar.Data.SqlServer;
 using Logitar.EventSourcing;
 using Logitar.EventSourcing.EntityFrameworkCore.Relational;
 using Logitar.Master.Application;
+using Logitar.Master.Application.Accounts;
 using Logitar.Master.Application.Caching;
 using Logitar.Master.EntityFrameworkCore;
 using Logitar.Master.EntityFrameworkCore.SqlServer;
@@ -15,6 +16,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Logitar.Master;
 
@@ -23,6 +25,7 @@ public abstract class IntegrationTests : IAsyncLifetime
   private readonly TestContext _context = new();
   private readonly DatabaseProvider _databaseProvider;
 
+  protected CancellationToken CancellationToken { get; }
   protected Faker Faker { get; } = new();
 
   protected IConfiguration Configuration { get; }
@@ -32,6 +35,12 @@ public abstract class IntegrationTests : IAsyncLifetime
   protected MasterContext MasterContext { get; }
 
   protected IRequestPipeline Pipeline { get; }
+
+  protected Mock<IMessageService> MessageService { get; } = new();
+  protected Mock<IOneTimePasswordService> OneTimePasswordService { get; } = new();
+  protected Mock<ISessionService> SessionService { get; } = new();
+  protected Mock<ITokenService> TokenService { get; } = new();
+  protected Mock<IUserService> UserService { get; } = new();
 
   protected Actor Actor { get; } = Actor.System;
   protected ActorId ActorId => new(Actor.Id);
@@ -58,6 +67,12 @@ public abstract class IntegrationTests : IAsyncLifetime
       default:
         throw new DatabaseProviderNotSupportedException(_databaseProvider);
     }
+
+    services.AddSingleton(MessageService.Object);
+    services.AddSingleton(OneTimePasswordService.Object);
+    services.AddSingleton(SessionService.Object);
+    services.AddSingleton(TokenService.Object);
+    services.AddSingleton(UserService.Object);
 
     ServiceProvider = services.BuildServiceProvider();
 

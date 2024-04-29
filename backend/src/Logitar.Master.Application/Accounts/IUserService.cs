@@ -9,5 +9,5 @@ public interface IUserService
   Task<User> CreateAsync(Email email, CancellationToken cancellationToken = default);
   Task<User?> FindAsync(string uniqueName, CancellationToken cancellationToken = default);
   Task<User?> FindAsync(Guid id, CancellationToken cancellationToken = default);
-  Task<User?> UpdateEmailAsync(User user, CancellationToken cancellationToken = default);
+  Task<User> UpdateEmailAsync(User user, CancellationToken cancellationToken = default);
 }
