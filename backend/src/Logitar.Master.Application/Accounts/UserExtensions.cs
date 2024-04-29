@@ -1,7 +1,6 @@
 ﻿using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Users;
-using System.Globalization;
 
 namespace Logitar.Master.Application.Accounts;
 
@@ -36,4 +35,24 @@ public static class UserExtensions
     CustomAttribute? customAttribute = user.CustomAttributes.SingleOrDefault(x => x.Key == ProfileCompletedOnKey);
     return customAttribute == null ? null : DateTime.Parse(customAttribute.Value);
   }
+
+  public static UserProfile ToUserProfile(this User user) => new()
+  {
+    CreatedOn = user.CreatedOn,
+    CompletedOn = user.GetProfileCompleted() ?? default,
+    UpdatedOn = user.UpdatedOn,
+    PasswordChangedOn = user.PasswordChangedOn,
+    AuthenticatedOn = user.AuthenticatedOn,
+    MultiFactorAuthenticationMode = user.GetMultiFactorAuthenticationMode() ?? MultiFactorAuthenticationMode.None,
+    EmailAddress = user.Email?.Address ?? user.UniqueName,
+    Phone = AccountPhone.TryCreate(user.Phone),
+    FirstName = user.FirstName ?? string.Empty,
+    MiddleName = user.MiddleName,
+    LastName = user.LastName ?? string.Empty,
+    FullName = user.FullName ?? string.Empty,
+    Birthdate = user.Birthdate,
+    Gender = user.Gender,
+    Locale = user.Locale ?? new Locale(),
+    TimeZone = user.TimeZone ?? string.Empty
+  };
 }
