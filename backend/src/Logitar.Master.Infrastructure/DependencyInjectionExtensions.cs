@@ -31,7 +31,7 @@ public static class DependencyInjectionExtensions
     return services
       .AddTransient<IApiKeyService, ApiKeyService>()
       .AddTransient<IMessageService, MessageService>()
-      //.AddTransient<IOneTimePasswordService, OneTimePasswordService>()
+      .AddTransient<IOneTimePasswordService, OneTimePasswordService>()
       //.AddTransient<IRealmService, RealmService>()
       .AddTransient<ISessionService, SessionService>()
       .AddTransient<ITokenService, TokenService>()
