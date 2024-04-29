@@ -69,7 +69,7 @@ internal class UserService : IUserService
       }
       if (completedProfile.PhoneNumber != null)
       {
-        payload.Phone = new Modification<PhonePayload>(new PhonePayload(countryCode: null, completedProfile.PhoneNumber, extension: null, isVerified: false)); // TODO(fpion): CountryCode? IsVerified?
+        payload.Phone = new Modification<PhonePayload>(new PhonePayload(countryCode: null, completedProfile.PhoneNumber, extension: null, isVerified: false));
       }
       payload.CompleteProfile();
       payload.SetMultiFactorAuthenticationMode(completedProfile.MultiFactorAuthenticationMode);
