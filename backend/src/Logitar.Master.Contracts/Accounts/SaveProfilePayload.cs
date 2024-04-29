@@ -2,11 +2,6 @@
 
 public record SaveProfilePayload
 {
-  // TODO(fpion): change Password
-  // TODO(fpion): change Email/UniqueName
-  // TODO(fpion): change Phone
-  // TODO(fpion): change MultiFactorAuthenticationMode
-
   public string FirstName { get; set; }
   public string? MiddleName { get; set; }
   public string LastName { get; set; }
