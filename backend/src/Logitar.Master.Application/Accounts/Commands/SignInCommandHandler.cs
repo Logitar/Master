@@ -1,5 +1,8 @@
 ﻿using Logitar.Master.Contracts.Accounts;
+using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
+using Logitar.Portal.Contracts.Passwords;
+using Logitar.Portal.Contracts.Sessions;
 using Logitar.Portal.Contracts.Tokens;
 using Logitar.Portal.Contracts.Users;
 using MediatR;
@@ -9,15 +12,23 @@ namespace Logitar.Master.Application.Accounts.Commands;
 internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInCommandResult>
 {
   private const string AuthenticationTokenType = "auth+jwt";
+  private const string MultiFactorAuthenticationPurpose = "MultiFactorAuthentication";
+  private const string MultiFactorAuthenticationTemplate = "MultiFactorAuthentication{ContactType}";
   private const string PasswordlessTemplate = "AccountAuthentication";
+  private const string ProfileTokenType = "profile+jwt";
 
   private readonly IMessageService _messageService;
+  private readonly IOneTimePasswordService _oneTimePasswordService;
+  private readonly ISessionService _sessionService;
   private readonly ITokenService _tokenService;
   private readonly IUserService _userService;
 
-  public SignInCommandHandler(IMessageService messageService, ITokenService tokenService, IUserService userService)
+  public SignInCommandHandler(IMessageService messageService, IOneTimePasswordService oneTimePasswordService,
+    ISessionService sessionService, ITokenService tokenService, IUserService userService)
   {
     _messageService = messageService;
+    _oneTimePasswordService = oneTimePasswordService;
+    _sessionService = sessionService;
     _tokenService = tokenService;
     _userService = userService;
   }
@@ -29,13 +40,13 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
     if (payload.Credentials != null)
     {
-      return await HandleCredentialsAsync(payload.Credentials, payload.Locale, cancellationToken);
+      return await HandleCredentialsAsync(payload.Credentials, payload.Locale, command.CustomAttributes, cancellationToken);
     }
 
     throw new InvalidOperationException($"The {nameof(SignInPayload)} is not valid.");
   }
 
-  private async Task<SignInCommandResult> HandleCredentialsAsync(Credentials credentials, string locale, CancellationToken cancellationToken)
+  private async Task<SignInCommandResult> HandleCredentialsAsync(Credentials credentials, string locale, IEnumerable<CustomAttribute> sessionAttributes, CancellationToken cancellationToken)
   {
     User? user = await _userService.FindAsync(credentials.EmailAddress, cancellationToken);
     if (user == null || !user.HasPassword)
@@ -57,6 +68,56 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       return SignInCommandResult.RequirePassword();
     }
 
-    throw new NotImplementedException(); // TODO(fpion): implement
+    MultiFactorAuthenticationMode? mfaMode = user.GetMultiFactorAuthenticationMode();
+    if (mfaMode == MultiFactorAuthenticationMode.None && user.IsProfileCompleted())
+    {
+      Session session = await _sessionService.SignInAsync(user, credentials.Password, sessionAttributes, cancellationToken);
+      return SignInCommandResult.Succeed(session);
+    }
+    else
+    {
+      user = await _userService.AuthenticateAsync(user, credentials.Password, cancellationToken);
+    }
+
+    return mfaMode switch
+    {
+      MultiFactorAuthenticationMode.Email => await SendMultiFactorAuthenticationMessageAsync(user, ContactType.Email, locale, cancellationToken),
+      MultiFactorAuthenticationMode.Phone => await SendMultiFactorAuthenticationMessageAsync(user, ContactType.Phone, locale, cancellationToken),
+      _ => await EnsureProfileIsCompleted(user, sessionAttributes, cancellationToken),
+    };
+  }
+  private async Task<SignInCommandResult> SendMultiFactorAuthenticationMessageAsync(User user, ContactType contactType, string locale, CancellationToken cancellationToken)
+  {
+    Contact contact = contactType switch
+    {
+      ContactType.Email => user.Email ?? throw new ArgumentException($"The user 'Id={user.Id}' has no email.", nameof(user)),
+      ContactType.Phone => user.Phone ?? throw new ArgumentException($"The user 'Id={user.Id}' has no phone.", nameof(user)),
+      _ => throw new ArgumentException($"The contact type '{contactType}' is not supported.", nameof(contactType)),
+    };
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, MultiFactorAuthenticationPurpose, cancellationToken);
+    if (oneTimePassword.Password == null)
+    {
+      throw new InvalidOperationException($"The One-Time Password (OTP) 'Id={oneTimePassword.Id}' has no password.");
+    }
+    Dictionary<string, string> variables = new()
+    {
+      ["OneTimePassword"] = oneTimePassword.Password
+    };
+    string template = MultiFactorAuthenticationTemplate.Replace("{ContactType}", contactType.ToString());
+    SentMessages sentMessages = await _messageService.SendAsync(template, user, locale, variables, cancellationToken);
+    SentMessage sentMessage = sentMessages.ToSentMessage(contact);
+    return SignInCommandResult.RequireOneTimePasswordValidation(oneTimePassword, sentMessage);
+  }
+
+  private async Task<SignInCommandResult> EnsureProfileIsCompleted(User user, IEnumerable<CustomAttribute> sessionAttributes, CancellationToken cancellationToken)
+  {
+    if (!user.IsProfileCompleted())
+    {
+      CreatedToken token = await _tokenService.CreateAsync(user.GetSubject(), ProfileTokenType, cancellationToken);
+      return SignInCommandResult.RequireProfileCompletion(token);
+    }
+
+    Session session = await _sessionService.CreateAsync(user, sessionAttributes, cancellationToken);
+    return SignInCommandResult.Succeed(session);
   }
 }

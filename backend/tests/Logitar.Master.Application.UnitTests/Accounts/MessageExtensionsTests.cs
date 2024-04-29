@@ -61,4 +61,17 @@ public class MessageExtensionsTests
     Assert.Equal(ContactType.Email, sentMessage.ContactType);
     Assert.Equal(email.Address, sentMessage.MaskedContact);
   }
+
+  [Fact(DisplayName = "ToSentMessage: it should return the correct sent phone message.")]
+  public void ToSentMessage_it_should_return_the_correct_sent_phone_message()
+  {
+    SentMessages sentMessages = new([Guid.NewGuid()]);
+    Phone phone = new(countryCode: "CA", number: "(514) 845-4636", extension: null, e164Formatted: "+15148454636");
+    SentMessage sentMessage = sentMessages.ToSentMessage(phone);
+
+    string confirmationNumber = sentMessages.GenerateConfirmationNumber();
+    Assert.Equal(confirmationNumber, sentMessage.ConfirmationNumber);
+    Assert.Equal(ContactType.Phone, sentMessage.ContactType);
+    Assert.Equal("********636", sentMessage.MaskedContact);
+  }
 }

@@ -67,8 +67,19 @@ internal static class MessageExtensions
     return 63;
   }
 
-  public static SentMessage ToSentMessage(this SentMessages sentMessages, Email email)
+  public static SentMessage ToSentMessage(this SentMessages sentMessages, Contact contact)
   {
-    return new SentMessage(sentMessages.GenerateConfirmationNumber(), ContactType.Email, email.Address);
+    if (contact is Email email)
+    {
+      return new SentMessage(sentMessages.GenerateConfirmationNumber(), ContactType.Email, email.Address);
+    }
+    else if (contact is Phone phone)
+    {
+      int length = phone.E164Formatted.Length;
+      string maskedContact = string.Concat(phone.E164Formatted.Substring(1, length - 4).Mask(), phone.E164Formatted[(length - 3)..]);
+      return new SentMessage(sentMessages.GenerateConfirmationNumber(), ContactType.Phone, maskedContact);
+    }
+
+    throw new ArgumentException($"The contact type '{contact.GetType().GetNamespaceQualifiedName()}' is not supported.", nameof(contact));
   }
 }

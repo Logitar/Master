@@ -48,7 +48,7 @@ internal class MessageService : IMessageService
         payload.Variables.Add(new Variable(variable));
       }
     }
-    RequestContext context = new(cancellationToken); // TOOD(fpion): send user
+    RequestContext context = new(recipient.UserId?.ToString(), cancellationToken);
     return await _messageClient.SendAsync(payload, context);
   }
 }

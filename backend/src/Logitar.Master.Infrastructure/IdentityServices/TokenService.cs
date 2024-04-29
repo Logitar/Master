@@ -14,6 +14,10 @@ internal class TokenService : ITokenService
     _tokenClient = tokenClient;
   }
 
+  public async Task<CreatedToken> CreateAsync(string? subject, string type, CancellationToken cancellationToken)
+  {
+    return await CreateAsync(subject, email: null, type, cancellationToken);
+  }
   public async Task<CreatedToken> CreateAsync(string? subject, Email? email, string type, CancellationToken cancellationToken)
   {
     CreateTokenPayload payload = new()

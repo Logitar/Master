@@ -5,5 +5,6 @@ namespace Logitar.Master.Application.Accounts;
 
 public interface ITokenService
 {
+  Task<CreatedToken> CreateAsync(string? subject, string type, CancellationToken cancellationToken = default);
   Task<CreatedToken> CreateAsync(string? subject, Email? email, string type, CancellationToken cancellationToken = default);
 }
