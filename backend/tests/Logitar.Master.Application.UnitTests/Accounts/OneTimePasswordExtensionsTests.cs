@@ -27,7 +27,7 @@ public class OneTimePasswordExtensionsTests
       Id = Guid.NewGuid()
     };
     Assert.Empty(password.CustomAttributes);
-    var exception = Assert.Throws<InvalidOneTimePasswordPurpose>(() => password.EnsurePurpose(Purpose));
+    var exception = Assert.Throws<InvalidOneTimePasswordPurposeException>(() => password.EnsurePurpose(Purpose));
     Assert.Equal(password.Id, exception.OneTimePasswordId);
     Assert.Equal(Purpose, exception.ExpectedPurpose);
     Assert.Null(exception.ActualPurpose);
@@ -44,7 +44,7 @@ public class OneTimePasswordExtensionsTests
     string purpose = "Test";
     password.CustomAttributes.Add(new("Purpose", purpose));
 
-    var exception = Assert.Throws<InvalidOneTimePasswordPurpose>(() => password.EnsurePurpose(Purpose));
+    var exception = Assert.Throws<InvalidOneTimePasswordPurposeException>(() => password.EnsurePurpose(Purpose));
     Assert.Equal(password.Id, exception.OneTimePasswordId);
     Assert.Equal(Purpose, exception.ExpectedPurpose);
     Assert.Equal(purpose, exception.ActualPurpose);

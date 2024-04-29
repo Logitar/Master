@@ -46,6 +46,10 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     {
       return await HandleAuthenticationTokenAsync(payload.AuthenticationToken, command.CustomAttributes, cancellationToken);
     }
+    else if (payload.OneTimePassword != null)
+    {
+      return await HandleOneTimePasswordAsync(payload.OneTimePassword, command.CustomAttributes, cancellationToken);
+    }
 
     throw new InvalidOperationException($"The {nameof(SignInPayload)} is not valid.");
   }
@@ -142,6 +146,16 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
         user = await _userService.UpdateEmailAsync(user, cancellationToken);
       }
     }
+
+    return await EnsureProfileIsCompleted(user, customAttributes, cancellationToken);
+  }
+
+  private async Task<SignInCommandResult> HandleOneTimePasswordAsync(OneTimePasswordPayload payload, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
+  {
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, cancellationToken) ?? throw new OneTimePasswordNotFoundException(payload.Id);
+    oneTimePassword.EnsurePurpose(MultiFactorAuthenticationPurpose);
+    Guid userId = oneTimePassword.GetUserId();
+    User user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
 
     return await EnsureProfileIsCompleted(user, customAttributes, cancellationToken);
   }

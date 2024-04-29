@@ -33,7 +33,7 @@ public static class OneTimePasswordExtensions
   {
     if (!oneTimePassword.HasPurpose(purpose))
     {
-      throw new InvalidOneTimePasswordPurpose(oneTimePassword, purpose);
+      throw new InvalidOneTimePasswordPurposeException(oneTimePassword, purpose);
     }
   }
   public static bool HasPurpose(this OneTimePassword oneTimePassword, string purpose)

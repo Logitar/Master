@@ -1,9 +1,10 @@
-﻿using Logitar.Portal.Contracts.Errors;
+﻿using Logitar.Master.Contracts.Errors;
+using Logitar.Portal.Contracts.Errors;
 using Logitar.Portal.Contracts.Passwords;
 
 namespace Logitar.Master.Application.Accounts;
 
-internal class InvalidOneTimePasswordPurpose : BadRequestException
+internal class InvalidOneTimePasswordPurposeException : BadRequestException
 {
   private const string ErrorMessage = "The specified purpose did not match the expected One-Time Passord (OTP) purpose.";
 
@@ -23,9 +24,9 @@ internal class InvalidOneTimePasswordPurpose : BadRequestException
     private set => Data[nameof(ActualPurpose)] = value;
   }
 
-  public override Error Error => new(code: "InvalidCredentials", message: "The specified credentials did not match.");
+  public override Error Error => new InvalidCredentialsError();
 
-  public InvalidOneTimePasswordPurpose(OneTimePassword oneTimePassword, string purpose) : base(BuildMessage(oneTimePassword, purpose))
+  public InvalidOneTimePasswordPurposeException(OneTimePassword oneTimePassword, string purpose) : base(BuildMessage(oneTimePassword, purpose))
   {
     OneTimePasswordId = oneTimePassword.Id;
     ExpectedPurpose = purpose;

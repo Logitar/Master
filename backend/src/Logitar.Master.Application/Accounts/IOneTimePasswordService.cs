@@ -1,4 +1,5 @@
-﻿using Logitar.Portal.Contracts.Passwords;
+﻿using Logitar.Master.Contracts.Accounts;
+using Logitar.Portal.Contracts.Passwords;
 using Logitar.Portal.Contracts.Users;
 
 namespace Logitar.Master.Application.Accounts;
@@ -6,4 +7,5 @@ namespace Logitar.Master.Application.Accounts;
 public interface IOneTimePasswordService
 {
   Task<OneTimePassword> CreateAsync(User user, string purpose, CancellationToken cancellationToken = default);
+  Task<OneTimePassword?> ValidateAsync(OneTimePasswordPayload payload, CancellationToken cancellationToken = default);
 }

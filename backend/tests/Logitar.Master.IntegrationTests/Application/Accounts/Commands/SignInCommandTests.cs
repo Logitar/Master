@@ -95,6 +95,41 @@ public class SignInCommandTests : IntegrationTests
     Assert.Equal(token.Token, result.ProfileCompletionToken);
   }
 
+  [Fact(DisplayName = "It should require to complete the user profile (Multi-Factor Authentication).")]
+  public async Task It_should_require_to_complete_the_user_profile_Multi_Factor_Authentication()
+  {
+    User user = new(Faker.Person.Email)
+    {
+      Id = Guid.NewGuid(),
+      Email = new Email(Faker.Person.Email)
+      {
+        IsVerified = true
+      }
+    };
+    UserService.Setup(x => x.FindAsync(user.Id, CancellationToken)).ReturnsAsync(user);
+
+    OneTimePassword oneTimePassword = new()
+    {
+      Id = Guid.NewGuid(),
+      Password = "123456"
+    };
+    oneTimePassword.CustomAttributes.Add(new CustomAttribute("Purpose", "MultiFactorAuthentication"));
+    oneTimePassword.CustomAttributes.Add(new CustomAttribute("UserId", user.Id.ToString()));
+    SignInPayload payload = new(Faker.Locale)
+    {
+      OneTimePassword = new OneTimePasswordPayload(oneTimePassword.Id, oneTimePassword.Password)
+    };
+    OneTimePasswordService.Setup(x => x.ValidateAsync(payload.OneTimePassword, CancellationToken)).ReturnsAsync(oneTimePassword);
+
+    CreatedToken createdToken = new("profile_token");
+    TokenService.Setup(x => x.CreateAsync(user.Id.ToString(), "profile+jwt", CancellationToken)).ReturnsAsync(createdToken);
+
+    SignInCommand command = new(payload, CustomAttributes: []);
+    SignInCommandResult result = await Pipeline.ExecuteAsync(command, CancellationToken);
+
+    Assert.Equal(createdToken.Token, result.ProfileCompletionToken);
+  }
+
   [Fact(DisplayName = "It should send a Multi Factor Authentication email message.")]
   public async Task It_should_send_a_Multi_Factor_Authentication_email_message()
   {
@@ -294,6 +329,78 @@ public class SignInCommandTests : IntegrationTests
     Assert.Same(session, result.Session);
 
     UserService.Verify(x => x.UpdateEmailAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+  }
+
+  [Fact(DisplayName = "It should sign-in the user with an One-Time Password.")]
+  public async Task It_should_sign_in_the_user_with_an_One_Time_Password()
+  {
+    User user = new(Faker.Person.Email)
+    {
+      Id = Guid.NewGuid(),
+      Email = new Email(Faker.Person.Email)
+      {
+        IsVerified = true
+      }
+    };
+    user.CustomAttributes.Add(new CustomAttribute("MultiFactorAuthenticationMode", MultiFactorAuthenticationMode.Phone.ToString()));
+    user.CustomAttributes.Add(new CustomAttribute("ProfileCompletedOn", DateTime.Now.ToString("O", CultureInfo.InvariantCulture)));
+    UserService.Setup(x => x.FindAsync(user.Id, CancellationToken)).ReturnsAsync(user);
+
+    OneTimePassword oneTimePassword = new()
+    {
+      Id = Guid.NewGuid(),
+      Password = "123456"
+    };
+    oneTimePassword.CustomAttributes.Add(new CustomAttribute("Purpose", "MultiFactorAuthentication"));
+    oneTimePassword.CustomAttributes.Add(new CustomAttribute("UserId", user.Id.ToString()));
+    SignInPayload payload = new(Faker.Locale)
+    {
+      OneTimePassword = new OneTimePasswordPayload(oneTimePassword.Id, oneTimePassword.Password)
+    };
+    OneTimePasswordService.Setup(x => x.ValidateAsync(payload.OneTimePassword, CancellationToken)).ReturnsAsync(oneTimePassword);
+
+    Session session = new(user);
+    CustomAttribute[] customAttributes = [new("IpAddress", Faker.Internet.Ip())];
+    SessionService.Setup(x => x.CreateAsync(user, customAttributes, CancellationToken)).ReturnsAsync(session);
+
+    SignInCommand command = new(payload, customAttributes);
+    SignInCommandResult result = await Pipeline.ExecuteAsync(command, CancellationToken);
+
+    Assert.Same(session, result.Session);
+  }
+
+  [Fact(DisplayName = "It should throw InvalidOneTimePasswordPurpose when the purpose is not valid.")]
+  public async Task It_should_throw_InvalidOneTimePasswordPurpose_when_the_purpose_is_not_valid()
+  {
+    OneTimePassword oneTimePassword = new()
+    {
+      Id = Guid.NewGuid(),
+      Password = "123456"
+    };
+    oneTimePassword.CustomAttributes.Add(new CustomAttribute("Purpose", "PasswordRecovery"));
+    SignInPayload payload = new(Faker.Locale)
+    {
+      OneTimePassword = new OneTimePasswordPayload(oneTimePassword.Id, oneTimePassword.Password)
+    };
+    OneTimePasswordService.Setup(x => x.ValidateAsync(payload.OneTimePassword, CancellationToken)).ReturnsAsync(oneTimePassword);
+
+    SignInCommand command = new(payload, CustomAttributes: []);
+    var exception = await Assert.ThrowsAsync<InvalidOneTimePasswordPurposeException>(async () => await Pipeline.ExecuteAsync(command, CancellationToken));
+    Assert.Equal(oneTimePassword.Id, exception.OneTimePasswordId);
+    Assert.Equal("MultiFactorAuthentication", exception.ExpectedPurpose);
+    Assert.Equal("PasswordRecovery", exception.ActualPurpose);
+  }
+
+  [Fact(DisplayName = "It should throw OneTimePasswordNotFoundException when the One Time Password could not be found.")]
+  public async Task It_should_throw_OneTimePasswordNotFoundException_when_the_One_Time_Password_could_not_be_found()
+  {
+    SignInPayload payload = new(Faker.Locale)
+    {
+      OneTimePassword = new OneTimePasswordPayload(Guid.NewGuid(), "123456")
+    };
+    SignInCommand command = new(payload, CustomAttributes: []);
+    var exception = await Assert.ThrowsAsync<OneTimePasswordNotFoundException>(async () => await Pipeline.ExecuteAsync(command));
+    Assert.Equal(payload.OneTimePassword.Id, exception.OneTimePasswordId);
   }
 
   [Fact(DisplayName = "It should update the user email and require to complete the user profile (AuthenticationToken).")]

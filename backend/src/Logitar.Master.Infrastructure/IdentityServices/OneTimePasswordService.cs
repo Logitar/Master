@@ -1,4 +1,5 @@
 ﻿using Logitar.Master.Application.Accounts;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Passwords;
 using Logitar.Portal.Contracts.Users;
@@ -30,5 +31,12 @@ internal class OneTimePasswordService : IOneTimePasswordService
     payload.SetPurpose(purpose);
     RequestContext context = new(user.Id.ToString(), cancellationToken);
     return await _oneTimePasswordClient.CreateAsync(payload, context);
+  }
+
+  public async Task<OneTimePassword?> ValidateAsync(OneTimePasswordPayload oneTimePassword, CancellationToken cancellationToken)
+  {
+    ValidateOneTimePasswordPayload payload = new(oneTimePassword.Code);
+    RequestContext context = new(cancellationToken);
+    return await _oneTimePasswordClient.ValidateAsync(oneTimePassword.Id, payload, context);
   }
 }
