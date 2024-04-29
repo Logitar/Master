@@ -6,6 +6,8 @@ using Logitar.Master.Contracts.Accounts;
 using Logitar.Master.Extensions;
 using Logitar.Master.Models.Account;
 using Logitar.Portal.Contracts.Sessions;
+using Logitar.Portal.Contracts.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logitar.Master.Controllers;
@@ -61,5 +63,13 @@ public class AccountController : ControllerBase
     }
 
     return Ok(response);
+  }
+
+  [HttpGet("/profile")]
+  [Authorize]
+  public ActionResult<UserProfile> GetProfile()
+  {
+    User user = HttpContext.GetUser() ?? throw new InvalidOperationException("An authenticated user is required.");
+    return Ok(user.ToUserProfile());
   }
 }

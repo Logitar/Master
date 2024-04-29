@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using Logitar.Master.Contracts.Accounts;
+using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Users;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
@@ -102,6 +103,49 @@ public class UserExtensionsTests
   //  Assert.Null(payload.Extension);
   //  Assert.True(payload.IsVerified);
   //}
+
+  [Fact(DisplayName = "ToUserProfile: it should return the correct user profile.")]
+  public void ToUserProfile_it_should_return_the_correct_user_profile()
+  {
+    DateTime completedOn = DateTime.Now.AddHours(-6);
+    User user = new(_faker.Person.UserName)
+    {
+      CreatedOn = DateTime.Now.AddDays(-1),
+      UpdatedOn = DateTime.Now,
+      PasswordChangedOn = DateTime.Now.AddMinutes(-10),
+      AuthenticatedOn = DateTime.Now.AddHours(-1),
+      Email = new Email(_faker.Person.Email),
+      Phone = new Phone(countryCode: "CA", "(514) 845-4636", extension: null, "+15148454636"),
+      FirstName = _faker.Person.FirstName,
+      LastName = _faker.Person.LastName,
+      FullName = _faker.Person.FullName,
+      Birthdate = _faker.Person.DateOfBirth,
+      Gender = _faker.Person.Gender.ToString().ToLower(),
+      Locale = new Locale("fr-CA"),
+      TimeZone = "America/Montreal"
+    };
+    user.CustomAttributes.Add(new CustomAttribute("MultiFactorAuthenticationMode", MultiFactorAuthenticationMode.Phone.ToString()));
+    user.CustomAttributes.Add(new CustomAttribute("ProfileCompletedOn", completedOn.ToString("O", CultureInfo.InvariantCulture)));
+    UserProfile profile = user.ToUserProfile();
+    Assert.NotNull(profile.Phone);
+
+    Assert.Equal(user.CreatedOn, profile.CreatedOn);
+    Assert.Equal(completedOn, profile.CompletedOn);
+    Assert.Equal(user.UpdatedOn, profile.UpdatedOn);
+    Assert.Equal(user.PasswordChangedOn, profile.PasswordChangedOn);
+    Assert.Equal(user.AuthenticatedOn, profile.AuthenticatedOn);
+    Assert.Equal(MultiFactorAuthenticationMode.Phone, profile.MultiFactorAuthenticationMode);
+    Assert.Equal(user.Email.Address, profile.EmailAddress);
+    Assert.Equal(user.Phone.CountryCode, profile.Phone.CountryCode);
+    Assert.Equal(user.Phone.Number, profile.Phone.Number);
+    Assert.Equal(user.FirstName, profile.FirstName);
+    Assert.Equal(user.LastName, profile.LastName);
+    Assert.Equal(user.FullName, profile.FullName);
+    Assert.Equal(user.Birthdate, profile.Birthdate);
+    Assert.Equal(user.Gender, profile.Gender);
+    Assert.Equal(user.Locale, profile.Locale);
+    Assert.Equal(user.TimeZone, profile.TimeZone);
+  }
 
   //[Theory(DisplayName = "ToUserProfile: it should return the correct user profile.")]
   //[InlineData(MultiFactorAuthenticationMode.Email, null)]
