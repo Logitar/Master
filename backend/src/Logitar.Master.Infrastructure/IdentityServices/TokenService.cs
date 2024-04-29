@@ -34,4 +34,15 @@ internal class TokenService : ITokenService
     RequestContext context = new(cancellationToken);
     return await _tokenClient.CreateAsync(payload, context);
   }
+
+  public async Task<ValidatedToken> ValidateAsync(string token, string type, CancellationToken cancellationToken)
+  {
+    ValidateTokenPayload payload = new(token)
+    {
+      Consume = true,
+      Type = type
+    };
+    RequestContext context = new(cancellationToken);
+    return await _tokenClient.ValidateAsync(payload, context);
+  }
 }

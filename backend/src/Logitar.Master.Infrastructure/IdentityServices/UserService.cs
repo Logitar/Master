@@ -24,6 +24,16 @@ internal class UserService : IUserService
     return await _userClient.AuthenticateAsync(payload, context);
   }
 
+  public async Task<User> CreateAsync(Email email, CancellationToken cancellationToken)
+  {
+    CreateUserPayload payload = new(email.Address)
+    {
+      Email = new EmailPayload(email.Address, email.IsVerified)
+    };
+    RequestContext context = new(cancellationToken);
+    return await _userClient.CreateAsync(payload, context);
+  }
+
   public async Task<User?> FindAsync(string uniqueName, CancellationToken cancellationToken)
   {
     RequestContext context = new(cancellationToken);
@@ -34,5 +44,10 @@ internal class UserService : IUserService
   {
     RequestContext context = new(cancellationToken);
     return await _userClient.ReadAsync(id, uniqueName: null, identifier: null, context);
+  }
+
+  public Task<User?> UpdateEmailAsync(User user, CancellationToken cancellationToken = default)
+  {
+    throw new NotImplementedException();
   }
 }

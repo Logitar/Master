@@ -42,11 +42,15 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     {
       return await HandleCredentialsAsync(payload.Credentials, payload.Locale, command.CustomAttributes, cancellationToken);
     }
+    else if (!string.IsNullOrWhiteSpace(payload.AuthenticationToken))
+    {
+      return await HandleAuthenticationTokenAsync(payload.AuthenticationToken, command.CustomAttributes, cancellationToken);
+    }
 
     throw new InvalidOperationException($"The {nameof(SignInPayload)} is not valid.");
   }
 
-  private async Task<SignInCommandResult> HandleCredentialsAsync(Credentials credentials, string locale, IEnumerable<CustomAttribute> sessionAttributes, CancellationToken cancellationToken)
+  private async Task<SignInCommandResult> HandleCredentialsAsync(Credentials credentials, string locale, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
     User? user = await _userService.FindAsync(credentials.EmailAddress, cancellationToken);
     if (user == null || !user.HasPassword)
@@ -71,7 +75,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     MultiFactorAuthenticationMode? mfaMode = user.GetMultiFactorAuthenticationMode();
     if (mfaMode == MultiFactorAuthenticationMode.None && user.IsProfileCompleted())
     {
-      Session session = await _sessionService.SignInAsync(user, credentials.Password, sessionAttributes, cancellationToken);
+      Session session = await _sessionService.SignInAsync(user, credentials.Password, customAttributes, cancellationToken);
       return SignInCommandResult.Succeed(session);
     }
     else
@@ -83,7 +87,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     {
       MultiFactorAuthenticationMode.Email => await SendMultiFactorAuthenticationMessageAsync(user, ContactType.Email, locale, cancellationToken),
       MultiFactorAuthenticationMode.Phone => await SendMultiFactorAuthenticationMessageAsync(user, ContactType.Phone, locale, cancellationToken),
-      _ => await EnsureProfileIsCompleted(user, sessionAttributes, cancellationToken),
+      _ => await EnsureProfileIsCompleted(user, customAttributes, cancellationToken),
     };
   }
   private async Task<SignInCommandResult> SendMultiFactorAuthenticationMessageAsync(User user, ContactType contactType, string locale, CancellationToken cancellationToken)
@@ -109,7 +113,40 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     return SignInCommandResult.RequireOneTimePasswordValidation(oneTimePassword, sentMessage);
   }
 
-  private async Task<SignInCommandResult> EnsureProfileIsCompleted(User user, IEnumerable<CustomAttribute> sessionAttributes, CancellationToken cancellationToken)
+  private async Task<SignInCommandResult> HandleAuthenticationTokenAsync(string token, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
+  {
+    ValidatedToken validatedToken = await _tokenService.ValidateAsync(token, AuthenticationTokenType, cancellationToken);
+    Email? email = validatedToken.Email == null ? null : new(validatedToken.Email.Address)
+    {
+      IsVerified = true
+    };
+
+    User user;
+    if (validatedToken.Subject == null)
+    {
+      if (email == null)
+      {
+        throw new InvalidOperationException($"The '{nameof(validatedToken.Email)}' claims are required.");
+      }
+
+      user = await _userService.CreateAsync(email, cancellationToken);
+    }
+    else
+    {
+      Guid userId = Guid.Parse(validatedToken.Subject);
+      user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
+
+      if (email != null && (user.Email == null || user.Email.Address != email.Address || user.Email.IsVerified != email.IsVerified))
+      {
+        user.Email = email;
+        await _userService.UpdateEmailAsync(user, cancellationToken);
+      }
+    }
+
+    return await EnsureProfileIsCompleted(user, customAttributes, cancellationToken);
+  }
+
+  private async Task<SignInCommandResult> EnsureProfileIsCompleted(User user, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
     if (!user.IsProfileCompleted())
     {
@@ -117,7 +154,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       return SignInCommandResult.RequireProfileCompletion(token);
     }
 
-    Session session = await _sessionService.CreateAsync(user, sessionAttributes, cancellationToken);
+    Session session = await _sessionService.CreateAsync(user, customAttributes, cancellationToken);
     return SignInCommandResult.Succeed(session);
   }
 }

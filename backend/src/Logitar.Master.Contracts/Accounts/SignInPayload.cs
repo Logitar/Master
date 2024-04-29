@@ -5,6 +5,7 @@ public record SignInPayload
   public string Locale { get; set; }
 
   public Credentials? Credentials { get; set; }
+  public string? AuthenticationToken { get; set; }
 
   public SignInPayload() : this(string.Empty)
   {
