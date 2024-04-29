@@ -1,12 +1,12 @@
 ﻿using Logitar.Data;
 using Logitar.EventSourcing;
 using Logitar.Master.Application.Projects;
-using Logitar.Master.Contracts.Actors;
 using Logitar.Master.Contracts.Projects;
 using Logitar.Master.Contracts.Search;
 using Logitar.Master.Domain.Projects;
 using Logitar.Master.EntityFrameworkCore.Actors;
 using Logitar.Master.EntityFrameworkCore.Entities;
+using Logitar.Portal.Contracts.Actors;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logitar.Master.EntityFrameworkCore.Queriers;

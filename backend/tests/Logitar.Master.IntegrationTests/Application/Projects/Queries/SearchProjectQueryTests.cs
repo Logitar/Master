@@ -20,7 +20,7 @@ public class SearchProjectQueryTests : IntegrationTests
   {
     SearchProjectsPayload payload = new();
     SearchProjectsQuery query = new(payload);
-    SearchResults<Project> results = await Mediator.Send(query);
+    SearchResults<Project> results = await Pipeline.ExecuteAsync(query);
 
     Assert.Empty(results.Items);
     Assert.Equal(0, results.Total);
@@ -49,7 +49,7 @@ public class SearchProjectQueryTests : IntegrationTests
     };
     SearchProjectsQuery query = new(payload);
 
-    SearchResults<Project> results = await Mediator.Send(query);
+    SearchResults<Project> results = await Pipeline.ExecuteAsync(query);
     Assert.Equal(2, results.Total);
 
     Project project = Assert.Single(results.Items);

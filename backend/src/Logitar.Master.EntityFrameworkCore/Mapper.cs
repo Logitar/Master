@@ -1,8 +1,8 @@
 ﻿using Logitar.EventSourcing;
-using Logitar.Master.Contracts;
-using Logitar.Master.Contracts.Actors;
 using Logitar.Master.Contracts.Projects;
 using Logitar.Master.EntityFrameworkCore.Entities;
+using Logitar.Portal.Contracts;
+using Logitar.Portal.Contracts.Actors;
 
 namespace Logitar.Master.EntityFrameworkCore;
 

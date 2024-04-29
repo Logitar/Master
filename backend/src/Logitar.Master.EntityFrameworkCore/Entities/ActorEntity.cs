@@ -1,4 +1,4 @@
-﻿using Logitar.Master.Contracts.Actors;
+﻿using Logitar.Portal.Contracts.Actors;
 
 namespace Logitar.Master.EntityFrameworkCore.Entities;
 

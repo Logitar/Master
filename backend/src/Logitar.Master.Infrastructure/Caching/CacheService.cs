@@ -1,7 +1,7 @@
 ﻿using Logitar.EventSourcing;
 using Logitar.Master.Application.Caching;
-using Logitar.Master.Contracts.Actors;
 using Logitar.Master.Infrastructure.Settings;
+using Logitar.Portal.Contracts.Actors;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Logitar.Master.Infrastructure.Caching;

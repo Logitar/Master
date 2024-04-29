@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Logitar.Master.Filters;
 
-public class ExceptionHandling : ExceptionFilterAttribute
+internal class ExceptionHandling : ExceptionFilterAttribute
 {
   public override void OnException(ExceptionContext context)
   {

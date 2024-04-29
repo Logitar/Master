@@ -1,6 +1,6 @@
 ﻿using Logitar.EventSourcing;
-using Logitar.Master.Contracts.Actors;
 using Logitar.Master.EntityFrameworkCore.Entities;
+using Logitar.Portal.Contracts.Actors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

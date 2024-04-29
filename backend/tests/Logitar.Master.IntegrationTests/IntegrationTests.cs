@@ -1,22 +1,31 @@
 ﻿using Bogus;
 using Logitar.Data;
 using Logitar.Data.SqlServer;
+using Logitar.EventSourcing;
 using Logitar.EventSourcing.EntityFrameworkCore.Relational;
+using Logitar.Master.Application;
+using Logitar.Master.Application.Accounts;
+using Logitar.Master.Application.Caching;
 using Logitar.Master.EntityFrameworkCore;
 using Logitar.Master.EntityFrameworkCore.SqlServer;
 using Logitar.Master.Infrastructure;
 using Logitar.Master.Infrastructure.Commands;
+using Logitar.Portal.Contracts.Actors;
+using Logitar.Portal.Contracts.Users;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Logitar.Master;
 
 public abstract class IntegrationTests : IAsyncLifetime
 {
+  private readonly TestContext _context = new();
   private readonly DatabaseProvider _databaseProvider;
 
+  protected CancellationToken CancellationToken { get; }
   protected Faker Faker { get; } = new();
 
   protected IConfiguration Configuration { get; }
@@ -25,7 +34,16 @@ public abstract class IntegrationTests : IAsyncLifetime
   protected EventContext EventContext { get; }
   protected MasterContext MasterContext { get; }
 
-  protected IMediator Mediator { get; }
+  protected IRequestPipeline Pipeline { get; }
+
+  protected Mock<IMessageService> MessageService { get; } = new();
+  protected Mock<IOneTimePasswordService> OneTimePasswordService { get; } = new();
+  protected Mock<ISessionService> SessionService { get; } = new();
+  protected Mock<ITokenService> TokenService { get; } = new();
+  protected Mock<IUserService> UserService { get; } = new();
+
+  protected Actor Actor { get; } = Actor.System;
+  protected ActorId ActorId => new(Actor.Id);
 
   protected IntegrationTests()
   {
@@ -35,6 +53,8 @@ public abstract class IntegrationTests : IAsyncLifetime
 
     ServiceCollection services = new();
     services.AddSingleton(Configuration);
+    services.AddSingleton(_context);
+    services.AddSingleton<IRequestPipeline, TestRequestPipeline>();
 
     string connectionString;
     _databaseProvider = Configuration.GetValue<DatabaseProvider?>("DatabaseProvider") ?? DatabaseProvider.EntityFrameworkCoreSqlServer;
@@ -48,17 +68,47 @@ public abstract class IntegrationTests : IAsyncLifetime
         throw new DatabaseProviderNotSupportedException(_databaseProvider);
     }
 
+    services.AddSingleton(MessageService.Object);
+    services.AddSingleton(OneTimePasswordService.Object);
+    services.AddSingleton(SessionService.Object);
+    services.AddSingleton(TokenService.Object);
+    services.AddSingleton(UserService.Object);
+
     ServiceProvider = services.BuildServiceProvider();
 
     EventContext = ServiceProvider.GetRequiredService<EventContext>();
     MasterContext = ServiceProvider.GetRequiredService<MasterContext>();
 
-    Mediator = ServiceProvider.GetRequiredService<IMediator>();
+    Pipeline = ServiceProvider.GetRequiredService<IRequestPipeline>();
+
+    DateTime now = DateTime.Now;
+    User user = new(Faker.Person.UserName)
+    {
+      Id = Guid.NewGuid(),
+      Version = 1,
+      CreatedOn = now,
+      UpdatedOn = now,
+      Email = new Email(Faker.Person.Email),
+      FirstName = Faker.Person.FirstName,
+      LastName = Faker.Person.LastName,
+      FullName = Faker.Person.FullName,
+      Birthdate = Faker.Person.DateOfBirth,
+      Gender = Faker.Person.Gender.ToString().ToLower(),
+      Picture = Faker.Person.Avatar,
+      Website = $"https://www.{Faker.Person.Website}"
+    };
+    Actor = new(user);
+    user.CreatedBy = Actor;
+    user.UpdatedBy = Actor;
+    _context.User = user;
+
+    ServiceProvider.GetRequiredService<ICacheService>().SetActor(Actor); // TODO(fpion): insert into database
   }
 
   public virtual async Task InitializeAsync()
   {
-    await Mediator.Publish(new InitializeDatabaseCommand());
+    IPublisher publisher = ServiceProvider.GetRequiredService<IPublisher>();
+    await publisher.Publish(new InitializeDatabaseCommand());
 
     StringBuilder command = new();
     command.AppendLine(CreateDeleteBuilder(MasterDb.Projects.Table).Build().Text);

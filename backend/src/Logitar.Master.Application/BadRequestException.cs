@@ -1,4 +1,4 @@
-﻿using Logitar.Master.Contracts.Errors;
+﻿using Logitar.Portal.Contracts.Errors;
 
 namespace Logitar.Master.Application;
 

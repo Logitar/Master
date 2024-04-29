@@ -18,7 +18,7 @@ public class ReplaceProjectCommandTests : IntegrationTests
   {
     _projectRepository = ServiceProvider.GetRequiredService<IProjectRepository>();
 
-    _project = new(new UniqueKeyUnit("MASTER"));
+    _project = new(new UniqueKeyUnit("MASTER"), ActorId);
   }
 
   public override async Task InitializeAsync()
@@ -33,7 +33,7 @@ public class ReplaceProjectCommandTests : IntegrationTests
   {
     long version = _project.Version;
     _project.Description = new DescriptionUnit("This is the master project.");
-    _project.Update();
+    _project.Update(ActorId);
     await _projectRepository.SaveAsync(_project);
 
     ReplaceProjectPayload payload = new()
@@ -42,12 +42,13 @@ public class ReplaceProjectCommandTests : IntegrationTests
       Description = "        "
     };
     ReplaceProjectCommand command = new(_project.Id.ToGuid(), payload, version);
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.NotNull(project);
 
     Assert.Equal(_project.Id.ToGuid(), project.Id);
     Assert.Equal(3, project.Version);
-    // TODO(fpion): CreatedBy, UpdatedBy
+    Assert.Equal(Actor, project.CreatedBy);
+    Assert.Equal(Actor, project.UpdatedBy);
     Assert.True(project.CreatedOn < project.UpdatedOn);
 
     Assert.Equal(_project.UniqueKey.Value, project.UniqueKey);
@@ -64,12 +65,13 @@ public class ReplaceProjectCommandTests : IntegrationTests
       Description = "        "
     };
     ReplaceProjectCommand command = new(_project.Id.ToGuid(), payload, Version: null);
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.NotNull(project);
 
     Assert.Equal(_project.Id.ToGuid(), project.Id);
     Assert.Equal(2, project.Version);
-    // TODO(fpion): CreatedBy, UpdatedBy
+    Assert.Equal(Actor, project.CreatedBy);
+    Assert.Equal(Actor, project.UpdatedBy);
     Assert.True(project.CreatedOn < project.UpdatedOn);
 
     Assert.Equal(_project.UniqueKey.Value, project.UniqueKey);
@@ -82,7 +84,7 @@ public class ReplaceProjectCommandTests : IntegrationTests
   {
     ReplaceProjectPayload payload = new();
     ReplaceProjectCommand command = new(Id: Guid.Empty, payload, Version: null);
-    Project? project = await Mediator.Send(command);
+    Project? project = await Pipeline.ExecuteAsync(command);
     Assert.Null(project);
   }
 
@@ -94,7 +96,7 @@ public class ReplaceProjectCommandTests : IntegrationTests
       DisplayName = RandomStringGenerator.GetString(DisplayNameUnit.MaximumLength + 1)
     };
     ReplaceProjectCommand command = new(_project.Id.ToGuid(), payload, Version: null);
-    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Mediator.Send(command));
+    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Pipeline.ExecuteAsync(command));
 
     ValidationFailure error = Assert.Single(exception.Errors);
     Assert.Equal("MaximumLengthValidator", error.ErrorCode);

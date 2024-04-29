@@ -1,8 +1,8 @@
 ﻿using Logitar.EventSourcing;
 using Logitar.Master.Application.Caching;
-using Logitar.Master.Contracts.Actors;
 using Logitar.Master.EntityFrameworkCore.Actors;
 using Logitar.Master.EntityFrameworkCore.Entities;
+using Logitar.Portal.Contracts.Actors;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logitar.Master.EntityFrameworkCore.Relational.Actors;
