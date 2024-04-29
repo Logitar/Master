@@ -26,8 +26,6 @@ public class AccountController : ControllerBase
     _sessionService = sessionService;
   }
 
-  // TODO(fpion): get profile
-
   [HttpPost("/auth/sign/in")]
   public async Task<ActionResult<SignInResponse>> SignInAsync([FromBody] SignInPayload payload, CancellationToken cancellationToken)
   {

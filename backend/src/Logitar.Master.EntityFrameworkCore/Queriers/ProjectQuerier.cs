@@ -14,13 +14,13 @@ namespace Logitar.Master.EntityFrameworkCore.Queriers;
 internal class ProjectQuerier : IProjectQuerier
 {
   private readonly IActorService _actorService;
-  private readonly MasterContext _context;
+  private readonly DbSet<ProjectEntity> _projects;
   private readonly ISqlHelper _sqlHelper;
 
   public ProjectQuerier(IActorService actorService, MasterContext context, ISqlHelper sqlHelper)
   {
     _actorService = actorService;
-    _context = context;
+    _projects = context.Projects;
     _sqlHelper = sqlHelper;
   }
 
@@ -37,7 +37,7 @@ internal class ProjectQuerier : IProjectQuerier
   {
     string aggregateId = new AggregateId(id).Value;
 
-    ProjectEntity? project = await _context.Projects.AsNoTracking()
+    ProjectEntity? project = await _projects.AsNoTracking()
       .SingleOrDefaultAsync(x => x.AggregateId == aggregateId, cancellationToken);
 
     return project == null ? null : await MapAsync(project, cancellationToken);
@@ -47,7 +47,7 @@ internal class ProjectQuerier : IProjectQuerier
   {
     string uniqueKeyNormalized = MasterDb.Normalize(uniqueKey);
 
-    ProjectEntity? project = await _context.Projects.AsNoTracking()
+    ProjectEntity? project = await _projects.AsNoTracking()
       .SingleOrDefaultAsync(x => x.UniqueKeyNormalized == uniqueKeyNormalized, cancellationToken);
 
     return project == null ? null : await MapAsync(project, cancellationToken);
@@ -59,7 +59,7 @@ internal class ProjectQuerier : IProjectQuerier
       .ApplyIdFilter(MasterDb.Projects.AggregateId, payload.Ids);
     _sqlHelper.ApplyTextSearch(builder, payload.Search, MasterDb.Projects.UniqueKey, MasterDb.Projects.DisplayName);
 
-    IQueryable<ProjectEntity> query = _context.Projects.FromQuery(builder).AsNoTracking();
+    IQueryable<ProjectEntity> query = _projects.FromQuery(builder).AsNoTracking();
     long total = await query.LongCountAsync(cancellationToken);
 
     IOrderedQueryable<ProjectEntity>? ordered = null;
