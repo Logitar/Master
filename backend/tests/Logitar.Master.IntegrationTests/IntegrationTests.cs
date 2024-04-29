@@ -5,8 +5,8 @@ using Logitar.EventSourcing;
 using Logitar.EventSourcing.EntityFrameworkCore.Relational;
 using Logitar.Master.Application;
 using Logitar.Master.Application.Accounts;
-using Logitar.Master.Application.Caching;
 using Logitar.Master.EntityFrameworkCore;
+using Logitar.Master.EntityFrameworkCore.Entities;
 using Logitar.Master.EntityFrameworkCore.SqlServer;
 using Logitar.Master.Infrastructure;
 using Logitar.Master.Infrastructure.Commands;
@@ -101,8 +101,6 @@ public abstract class IntegrationTests : IAsyncLifetime
     user.CreatedBy = Actor;
     user.UpdatedBy = Actor;
     _context.User = user;
-
-    ServiceProvider.GetRequiredService<ICacheService>().SetActor(Actor); // TODO(fpion): insert into database
   }
 
   public virtual async Task InitializeAsync()
@@ -115,6 +113,13 @@ public abstract class IntegrationTests : IAsyncLifetime
     command.AppendLine(CreateDeleteBuilder(MasterDb.Actors.Table).Build().Text);
     command.AppendLine(CreateDeleteBuilder(EventDb.Events.Table).Build().Text);
     await MasterContext.Database.ExecuteSqlRawAsync(command.ToString());
+
+    if (_context.User != null)
+    {
+      ActorEntity actor = new(_context.User);
+      MasterContext.Actors.Add(actor);
+      await MasterContext.SaveChangesAsync();
+    }
   }
   private IDeleteBuilder CreateDeleteBuilder(TableId table) => _databaseProvider switch
   {

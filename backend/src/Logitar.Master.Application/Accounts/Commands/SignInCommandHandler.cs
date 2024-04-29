@@ -1,4 +1,5 @@
-﻿using Logitar.Master.Contracts.Accounts;
+﻿using Logitar.Master.Application.Accounts.Events;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
 using Logitar.Portal.Contracts.Passwords;
@@ -19,15 +20,17 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private readonly IMessageService _messageService;
   private readonly IOneTimePasswordService _oneTimePasswordService;
+  private readonly IPublisher _publisher;
   private readonly ISessionService _sessionService;
   private readonly ITokenService _tokenService;
   private readonly IUserService _userService;
 
   public SignInCommandHandler(IMessageService messageService, IOneTimePasswordService oneTimePasswordService,
-    ISessionService sessionService, ITokenService tokenService, IUserService userService)
+    IPublisher publisher, ISessionService sessionService, ITokenService tokenService, IUserService userService)
   {
     _messageService = messageService;
     _oneTimePasswordService = oneTimePasswordService;
+    _publisher = publisher;
     _sessionService = sessionService;
     _tokenService = tokenService;
     _userService = userService;
@@ -83,7 +86,8 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     MultiFactorAuthenticationMode? mfaMode = user.GetMultiFactorAuthenticationMode();
     if (mfaMode == MultiFactorAuthenticationMode.None && user.IsProfileCompleted())
     {
-      Session session = await _sessionService.SignInAsync(user, credentials.Password, customAttributes, cancellationToken); // TODO(fpion): create actor
+      Session session = await _sessionService.SignInAsync(user, credentials.Password, customAttributes, cancellationToken);
+      await _publisher.Publish(new UserSignedInEvent(session), cancellationToken);
       return SignInCommandResult.Succeed(session);
     }
     else
@@ -184,7 +188,8 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       return SignInCommandResult.RequireProfileCompletion(token);
     }
 
-    Session session = await _sessionService.CreateAsync(user, customAttributes, cancellationToken); // TODO(fpion): create actor
+    Session session = await _sessionService.CreateAsync(user, customAttributes, cancellationToken);
+    await _publisher.Publish(new UserSignedInEvent(session), cancellationToken);
     return SignInCommandResult.Succeed(session);
   }
 }
