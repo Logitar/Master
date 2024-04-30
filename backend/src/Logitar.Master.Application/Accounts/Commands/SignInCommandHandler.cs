@@ -1,4 +1,5 @@
 ﻿using Logitar.Master.Application.Accounts.Events;
+using Logitar.Master.Application.Constants;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
@@ -12,11 +13,9 @@ namespace Logitar.Master.Application.Accounts.Commands;
 
 internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInCommandResult>
 {
-  private const string AuthenticationTokenType = "auth+jwt";
   private const string MultiFactorAuthenticationPurpose = "MultiFactorAuthentication";
   private const string MultiFactorAuthenticationTemplate = "MultiFactorAuthentication{ContactType}";
   private const string PasswordlessTemplate = "AccountAuthentication";
-  private const string ProfileTokenType = "profile+jwt";
 
   private readonly IMessageService _messageService;
   private readonly IOneTimePasswordService _oneTimePasswordService;
@@ -57,7 +56,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       return await CompleteProfileAsync(payload.Profile, command.CustomAttributes, cancellationToken);
     }
 
-    throw new InvalidOperationException($"The {nameof(SignInPayload)} is not valid.");
+    throw new ArgumentException($"The '{nameof(command)}.{nameof(command.Payload)}' is not valid.", nameof(command));
   }
 
   private async Task<SignInCommandResult> HandleCredentialsAsync(Credentials credentials, string locale, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
@@ -66,7 +65,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     if (user == null || !user.HasPassword)
     {
       Email email = user?.Email ?? new(credentials.EmailAddress);
-      CreatedToken token = await _tokenService.CreateAsync(user?.GetSubject(), email, AuthenticationTokenType, cancellationToken);
+      CreatedToken token = await _tokenService.CreateAsync(user?.GetSubject(), email, TokenTypes.Authentication, cancellationToken);
       Dictionary<string, string> variables = new()
       {
         ["Token"] = token.Token
@@ -126,7 +125,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private async Task<SignInCommandResult> HandleAuthenticationTokenAsync(string token, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
-    ValidatedToken validatedToken = await _tokenService.ValidateAsync(token, AuthenticationTokenType, cancellationToken);
+    ValidatedToken validatedToken = await _tokenService.ValidateAsync(token, TokenTypes.Authentication, cancellationToken);
     Email? email = validatedToken.Email == null ? null : new(validatedToken.Email.Address)
     {
       IsVerified = true
@@ -167,10 +166,10 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private async Task<SignInCommandResult> CompleteProfileAsync(CompleteProfilePayload payload, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
-    ValidatedToken validatedToken = await _tokenService.ValidateAsync(payload.Token, ProfileTokenType, cancellationToken);
+    ValidatedToken validatedToken = await _tokenService.ValidateAsync(payload.Token, TokenTypes.Profile, cancellationToken);
     if (validatedToken.Subject == null)
     {
-      throw new InvalidOperationException($"The claim '{validatedToken.Subject}' is required.");
+      throw new InvalidOperationException($"The '{validatedToken.Subject}' claim is required.");
     }
     Guid userId = Guid.Parse(validatedToken.Subject);
     User user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
@@ -183,7 +182,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
   {
     if (!user.IsProfileCompleted())
     {
-      CreatedToken token = await _tokenService.CreateAsync(user.GetSubject(), ProfileTokenType, cancellationToken);
+      CreatedToken token = await _tokenService.CreateAsync(user.GetSubject(), TokenTypes.Profile, cancellationToken);
       return SignInCommandResult.RequireProfileCompletion(token);
     }
 

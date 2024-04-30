@@ -6,6 +6,9 @@ namespace Logitar.Master.Application.Accounts;
 
 public static class OneTimePasswordExtensions
 {
+  private const string PhoneCountryCodeKey = "PhoneCountryCode";
+  private const string PhoneE164FormattedKey = "PhoneE164Formatted";
+  private const string PhoneNumberKey = "PhoneNumber";
   private const string PurposeKey = "Purpose";
   private const string UserIdKey = "UserId";
 
@@ -27,6 +30,32 @@ public static class OneTimePasswordExtensions
     {
       customAttribute.Value = user.Id.ToString();
     }
+  }
+
+  public static Phone GetPhone(this OneTimePassword oneTimePassword)
+  {
+    Phone? phone = oneTimePassword.TryGetPhone();
+    return phone ?? throw new InvalidOperationException($"The One-Time Password (OTP) has no phone custom attributes.");
+  }
+  public static Phone? TryGetPhone(this OneTimePassword oneTimePassword)
+  {
+    Phone phone = new();
+    foreach (CustomAttribute customAttribute in oneTimePassword.CustomAttributes)
+    {
+      switch (customAttribute.Key)
+      {
+        case PhoneCountryCodeKey:
+          phone.CountryCode = customAttribute.Value;
+          break;
+        case PhoneE164FormattedKey:
+          phone.E164Formatted = customAttribute.Value;
+          break;
+        case PhoneNumberKey:
+          phone.Number = customAttribute.Value;
+          break;
+      }
+    }
+    return (phone.Number == null || phone.E164Formatted == null) ? null : phone;
   }
 
   public static void EnsurePurpose(this OneTimePassword oneTimePassword, string purpose)

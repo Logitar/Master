@@ -24,6 +24,16 @@ internal class MessageService : IMessageService
     return await SendAsync(template, recipient, locale, variables, cancellationToken);
   }
 
+  public async Task<SentMessages> SendAsync(string template, Phone phone, string? locale, Dictionary<string, string>? variables, CancellationToken cancellationToken)
+  {
+    RecipientPayload recipient = new()
+    {
+      Type = RecipientType.To,
+      PhoneNumber = phone.E164Formatted
+    };
+    return await SendAsync(template, recipient, locale, variables, cancellationToken);
+  }
+
   public async Task<SentMessages> SendAsync(string template, User user, string? locale, Dictionary<string, string>? variables, CancellationToken cancellationToken)
   {
     RecipientPayload recipient = new()

@@ -32,6 +32,10 @@ internal class OneTimePasswordService : IOneTimePasswordService
     RequestContext context = new(user.Id.ToString(), cancellationToken);
     return await _oneTimePasswordClient.CreateAsync(payload, context);
   }
+  public Task<OneTimePassword> CreateAsync(User user, Phone phone, string purpose, CancellationToken cancellationToken)
+  {
+    throw new NotImplementedException(); // TODO(fpion): implement
+  }
 
   public async Task<OneTimePassword> ValidateAsync(OneTimePasswordPayload oneTimePasswordPayload, string purpose, CancellationToken cancellationToken)
   {
