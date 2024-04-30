@@ -73,7 +73,7 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
       message.Append("OneTimePasswordId: ").Append(oneTimePassword.Id).AppendLine();
       message.Append("ExpectedUserId: ").Append(userId).AppendLine();
       message.Append("ActualUserId: ").Append(user.Id).AppendLine();
-      throw new InvalidOperationException(message.ToString()); // TODO(fpion): typed exception
+      throw new NotImplementedException(message.ToString()); // TODO(fpion): typed exception
     }
     Phone phone = oneTimePassword.GetPhone();
     phone.IsVerified = true;

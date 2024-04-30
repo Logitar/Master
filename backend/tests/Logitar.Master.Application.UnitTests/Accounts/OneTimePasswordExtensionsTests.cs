@@ -58,13 +58,14 @@ public class OneTimePasswordExtensionsTests
     Assert.Equal(Purpose, password.GetPurpose());
   }
 
-  [Fact(DisplayName = "GetPurpose: it should throw InvalidOperationException when the One-Time Password has no purpose.")]
-  public void GetPurpose_it_should_throw_InvalidOperationException_when_the_One_Time_Password_has_no_purpose()
+  [Fact(DisplayName = "GetPurpose: it should throw ArgumentException when the One-Time Password has no purpose.")]
+  public void GetPurpose_it_should_throw_ArgumentException_when_the_One_Time_Password_has_no_purpose()
   {
     OneTimePassword password = new();
     Assert.Empty(password.CustomAttributes);
-    var exception = Assert.Throws<InvalidOperationException>(password.GetPurpose);
-    Assert.Equal("The One-Time Password (OTP) has no 'Purpose' custom attribute.", exception.Message);
+    var exception = Assert.Throws<ArgumentException>(password.GetPurpose);
+    Assert.StartsWith("The One-Time Password (OTP) has no 'Purpose' custom attribute.", exception.Message);
+    Assert.Equal("oneTimePassword", exception.ParamName);
   }
 
   [Fact(DisplayName = "GetUserId: it should return the correct identifier.")]
@@ -76,15 +77,16 @@ public class OneTimePasswordExtensionsTests
     Assert.Equal(userId, password.GetUserId());
   }
 
-  [Fact(DisplayName = "GetUserId: it should throw InvalidOperationException when the One-Time Password does not have the custom attribute.")]
-  public void GetUserId_it_should_throw_InvalidOperationException_when_the_One_Time_Password_does_not_have_the_custom_attribute()
+  [Fact(DisplayName = "GetUserId: it should throw ArgumentException when the One-Time Password does not have the custom attribute.")]
+  public void GetUserId_it_should_throw_ArgumentException_when_the_One_Time_Password_does_not_have_the_custom_attribute()
   {
     Guid userId = Guid.NewGuid();
     OneTimePassword password = new();
     Assert.Empty(password.CustomAttributes);
 
-    var exception = Assert.Throws<InvalidOperationException>(() => password.GetUserId());
-    Assert.Equal("The One-Time Password (OTP) has no 'UserId' custom attribute.", exception.Message);
+    var exception = Assert.Throws<ArgumentException>(() => password.GetUserId());
+    Assert.StartsWith("The One-Time Password (OTP) has no 'UserId' custom attribute.", exception.Message);
+    Assert.Equal("oneTimePassword", exception.ParamName);
   }
 
   [Fact(DisplayName = "HasPurpose: it should return false when the One-Time Password does not have the expected purpose.")]

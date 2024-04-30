@@ -50,7 +50,7 @@ public abstract record Activity : IActivity
   {
     if (_context != null)
     {
-      throw new InvalidOperationException($"The activity has already been populated. You may only call the '{nameof(Contextualize)}' method once.");
+      throw new InvalidOperationException($"The activity has already been contextualized. You may only call the '{nameof(Contextualize)}' method once.");
     }
 
     _context = context;

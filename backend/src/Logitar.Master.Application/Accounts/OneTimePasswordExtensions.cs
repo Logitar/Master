@@ -15,7 +15,7 @@ public static class OneTimePasswordExtensions
   public static Guid GetUserId(this OneTimePassword oneTimePassword)
   {
     CustomAttribute customAttribute = oneTimePassword.CustomAttributes.SingleOrDefault(x => x.Key == UserIdKey)
-      ?? throw new InvalidOperationException($"The One-Time Password (OTP) has no '{UserIdKey}' custom attribute.");
+      ?? throw new ArgumentException($"The One-Time Password (OTP) has no '{UserIdKey}' custom attribute.", nameof(oneTimePassword));
     return Guid.Parse(customAttribute.Value);
   }
   public static void SetUserId(this CreateOneTimePasswordPayload payload, User user)
@@ -25,7 +25,7 @@ public static class OneTimePasswordExtensions
 
   public static Phone GetPhone(this OneTimePassword oneTimePassword)
   {
-    return oneTimePassword.TryGetPhone() ?? throw new InvalidOperationException();
+    return oneTimePassword.TryGetPhone() ?? throw new NotImplementedException(); // TODO(fpion): typed exception
   } // TODO(fpion): unit tests
   public static Phone? TryGetPhone(this OneTimePassword oneTimePassword)
   {
