@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Logitar.Master.Application.Accounts.Commands;
 
-internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, ChangePhoneResult> // TODO(fpion): integration tests
+internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, ChangePhoneResult>
 {
   private const string ContactVerificationPurpose = "ContactVerification";
   private const string ContactVerificationTemplate = "ContactVerification{ContactType}";
