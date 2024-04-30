@@ -93,15 +93,19 @@ public class UserExtensionsTests
     Assert.Contains(payload.CustomAttributes, c => c.Key == nameof(MultiFactorAuthenticationMode) && c.Value == mfaMode.ToString());
   }
 
-  [Fact(DisplayName = "ToPhone: it should return the correct phone.")]
-  public void ToPhone_it_should_return_the_correct_phone()
+  [Theory(DisplayName = "ToPhone: it should return the correct phone.")]
+  [InlineData("CA", "(514) 845-4636", "+15148454636")]
+  [InlineData("", "(514) 845-4636", "+15148454636")]
+  [InlineData("  ", "  (514) 845-4636  ", "+15148454636")]
+  [InlineData(null, "(514) 845-4636", "+15148454636")]
+  public void ToPhone_it_should_return_the_correct_phone(string? countryCode, string number, string e164Formatted)
   {
-    AccountPhone phone = new("(514) 845-4636", "CA");
+    AccountPhone phone = new(number, countryCode);
     Phone result = phone.ToPhone();
-    Assert.Equal(phone.CountryCode, result.CountryCode);
-    Assert.Equal(phone.Number, result.Number);
+    Assert.Equal(phone.CountryCode?.CleanTrim(), result.CountryCode);
+    Assert.Equal(phone.Number.Trim(), result.Number);
     Assert.Null(result.Extension);
-    Assert.Equal("+15148454636", result.E164Formatted);
+    Assert.Equal(e164Formatted, result.E164Formatted);
     Assert.False(result.IsVerified);
     Assert.Null(result.VerifiedBy);
     Assert.Null(result.VerifiedOn);

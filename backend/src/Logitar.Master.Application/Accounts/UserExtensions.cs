@@ -39,7 +39,7 @@ public static class UserExtensions
 
   public static Phone ToPhone(this AccountPhone phone)
   {
-    Phone result = new(phone.CountryCode, phone.Number, extension: null, e164Formatted: string.Empty);
+    Phone result = new(phone.CountryCode?.CleanTrim(), phone.Number.Trim(), extension: null, e164Formatted: string.Empty);
     result.E164Formatted = result.FormatToE164();
     return result;
   }

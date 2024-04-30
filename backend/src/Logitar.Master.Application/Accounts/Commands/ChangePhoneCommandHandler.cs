@@ -1,4 +1,6 @@
-﻿using Logitar.Master.Contracts.Accounts;
+﻿using FluentValidation;
+using Logitar.Master.Application.Accounts.Validators;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts.Messages;
 using Logitar.Portal.Contracts.Passwords;
 using Logitar.Portal.Contracts.Users;
@@ -29,7 +31,8 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
       throw new ArgumentException($"An authenticated '{nameof(command.User)}' is required.", nameof(command));
     }
 
-    ChangePhonePayload payload = command.Payload; // TODO(fpion): validate payload
+    ChangePhonePayload payload = command.Payload;
+    new ChangePhoneValidator().ValidateAndThrow(payload);
 
     if (payload.NewPhone != null)
     {
@@ -68,12 +71,7 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
     Guid userId = oneTimePassword.GetUserId();
     if (userId != user.Id)
     {
-      StringBuilder message = new();
-      message.AppendLine("The specified One-Time Password (OTP) cannot be used to change the specified user phone.");
-      message.Append("OneTimePasswordId: ").Append(oneTimePassword.Id).AppendLine();
-      message.Append("ExpectedUserId: ").Append(userId).AppendLine();
-      message.Append("ActualUserId: ").Append(user.Id).AppendLine();
-      throw new NotImplementedException(message.ToString()); // TODO(fpion): typed exception
+      throw new InvalidOneTimePasswordUserException(oneTimePassword, user);
     }
     Phone phone = oneTimePassword.GetPhone();
     phone.IsVerified = true;

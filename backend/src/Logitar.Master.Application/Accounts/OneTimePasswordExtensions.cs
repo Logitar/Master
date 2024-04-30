@@ -14,9 +14,13 @@ public static class OneTimePasswordExtensions
 
   public static Guid GetUserId(this OneTimePassword oneTimePassword)
   {
-    CustomAttribute customAttribute = oneTimePassword.CustomAttributes.SingleOrDefault(x => x.Key == UserIdKey)
-      ?? throw new ArgumentException($"The One-Time Password (OTP) has no '{UserIdKey}' custom attribute.", nameof(oneTimePassword));
-    return Guid.Parse(customAttribute.Value);
+    Guid? userId = oneTimePassword.TryGetUserId();
+    return userId ?? throw new ArgumentException($"The One-Time Password (OTP) has no '{UserIdKey}' custom attribute.", nameof(oneTimePassword));
+  }
+  public static Guid? TryGetUserId(this OneTimePassword oneTimePassword)
+  {
+    CustomAttribute? customAttribute = oneTimePassword.CustomAttributes.SingleOrDefault(x => x.Key == UserIdKey);
+    return customAttribute == null ? null : Guid.Parse(customAttribute.Value);
   }
   public static void SetUserId(this CreateOneTimePasswordPayload payload, User user)
   {

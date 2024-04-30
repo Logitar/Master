@@ -267,4 +267,22 @@ public class OneTimePasswordExtensionsTests
     password.CustomAttributes.Add(new("Purpose", Purpose));
     Assert.Equal(Purpose, password.TryGetPurpose());
   }
+
+  [Fact(DisplayName = "TryGetUserId: it should return null when the One-Time Password does not have the custom attribute.")]
+  public void TryGetUserId_it_should_return_null_when_the_One_Time_Password_does_not_have_the_custom_attribute()
+  {
+    OneTimePassword oneTimePassword = new();
+    Assert.Null(oneTimePassword.TryGetUserId());
+  }
+
+  [Fact(DisplayName = "TryGetUserId: it should return the user Id when the One Time Password has one.")]
+  public void TryGetUserId_it_should_return_the_user_Id_when_the_One_Time_Password_has_one()
+  {
+    Guid userId = Guid.NewGuid();
+
+    OneTimePassword oneTimePassword = new();
+    oneTimePassword.CustomAttributes.Add(new CustomAttribute("UserId", userId.ToString()));
+
+    Assert.Equal(userId, oneTimePassword.TryGetUserId());
+  }
 }

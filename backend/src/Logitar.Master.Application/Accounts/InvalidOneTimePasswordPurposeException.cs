@@ -1,12 +1,11 @@
-﻿using Logitar.Master.Contracts.Errors;
-using Logitar.Portal.Contracts.Errors;
+﻿using Logitar.Identity.Domain.Shared;
 using Logitar.Portal.Contracts.Passwords;
 
 namespace Logitar.Master.Application.Accounts;
 
-public class InvalidOneTimePasswordPurposeException : BadRequestException
+public class InvalidOneTimePasswordPurposeException : InvalidCredentialsException
 {
-  private const string ErrorMessage = "The specified purpose did not match the expected One-Time Passord (OTP) purpose.";
+  private new const string ErrorMessage = "The specified purpose did not match the expected One-Time Passord (OTP) purpose.";
 
   public Guid OneTimePasswordId
   {
@@ -23,8 +22,6 @@ public class InvalidOneTimePasswordPurposeException : BadRequestException
     get => (string?)Data[nameof(ActualPurpose)];
     private set => Data[nameof(ActualPurpose)] = value;
   }
-
-  public override Error Error => new InvalidCredentialsError();
 
   public InvalidOneTimePasswordPurposeException(OneTimePassword oneTimePassword, string purpose) : base(BuildMessage(oneTimePassword, purpose))
   {
