@@ -16,7 +16,7 @@ public static class UserExtensions
   }
   public static void SetMultiFactorAuthenticationMode(this UpdateUserPayload payload, MultiFactorAuthenticationMode mode)
   {
-    payload.CustomAttributes.Add(new CustomAttributeModification(MultiFactorAuthenticationModeKey, mode.ToString()));
+    payload.CustomAttributes.Add(new CustomAttributeModification(MultiFactorAuthenticationModeKey, mode.ToString())); // TODO(fpion): refactor, see OneTimePasswordExtensions
   }
 
   public static string GetSubject(this User user) => user.Id.ToString();
@@ -24,7 +24,7 @@ public static class UserExtensions
   public static void CompleteProfile(this UpdateUserPayload payload)
   {
     string completedOn = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
-    payload.CustomAttributes.Add(new CustomAttributeModification(ProfileCompletedOnKey, completedOn));
+    payload.CustomAttributes.Add(new CustomAttributeModification(ProfileCompletedOnKey, completedOn)); // TODO(fpion): refactor, see OneTimePasswordExtensions
   }
   public static bool IsProfileCompleted(this User user)
   {

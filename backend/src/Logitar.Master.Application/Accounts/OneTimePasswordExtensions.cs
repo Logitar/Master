@@ -18,19 +18,7 @@ public static class OneTimePasswordExtensions
       ?? throw new InvalidOperationException($"The One-Time Password (OTP) has no '{UserIdKey}' custom attribute.");
     return Guid.Parse(customAttribute.Value);
   }
-  public static void SetUserId(this CreateOneTimePasswordPayload payload, User user)
-  {
-    CustomAttribute? customAttribute = payload.CustomAttributes.SingleOrDefault(x => x.Key == UserIdKey);
-    if (customAttribute == null)
-    {
-      customAttribute = new(UserIdKey, user.Id.ToString());
-      payload.CustomAttributes.Add(customAttribute);
-    }
-    else
-    {
-      customAttribute.Value = user.Id.ToString();
-    }
-  }
+  public static void SetUserId(this CreateOneTimePasswordPayload payload, User user) => payload.SetCustomAttribute(UserIdKey, user.Id.ToString());
 
   public static Phone GetPhone(this OneTimePassword oneTimePassword)
   {
@@ -57,6 +45,15 @@ public static class OneTimePasswordExtensions
     }
     return (phone.Number == null || phone.E164Formatted == null) ? null : phone;
   }
+  public static void SetPhone(this CreateOneTimePasswordPayload payload, Phone phone) // TODO(fpion): unit tests
+  {
+    if (phone.CountryCode != null)
+    {
+      payload.SetCustomAttribute(PhoneCountryCodeKey, phone.CountryCode);
+    }
+    payload.SetCustomAttribute(PhoneNumberKey, phone.Number);
+    payload.SetCustomAttribute(PhoneE164FormattedKey, phone.E164Formatted);
+  }
 
   public static void EnsurePurpose(this OneTimePassword oneTimePassword, string purpose)
   {
@@ -79,17 +76,19 @@ public static class OneTimePasswordExtensions
     CustomAttribute? customAttribute = oneTimePassword.CustomAttributes.SingleOrDefault(x => x.Key == PurposeKey);
     return customAttribute?.Value;
   }
-  public static void SetPurpose(this CreateOneTimePasswordPayload payload, string purpose)
+  public static void SetPurpose(this CreateOneTimePasswordPayload payload, string purpose) => payload.SetCustomAttribute(PurposeKey, purpose);
+
+  private static void SetCustomAttribute(this CreateOneTimePasswordPayload payload, string key, string value)
   {
-    CustomAttribute? customAttribute = payload.CustomAttributes.SingleOrDefault(x => x.Key == PurposeKey);
+    CustomAttribute? customAttribute = payload.CustomAttributes.SingleOrDefault(x => x.Key == key);
     if (customAttribute == null)
     {
-      customAttribute = new(PurposeKey, purpose);
+      customAttribute = new(key, value);
       payload.CustomAttributes.Add(customAttribute);
     }
     else
     {
-      customAttribute.Value = purpose;
+      customAttribute.Value = value;
     }
   }
 }

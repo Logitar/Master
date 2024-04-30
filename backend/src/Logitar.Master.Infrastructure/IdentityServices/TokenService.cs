@@ -35,9 +35,18 @@ internal class TokenService : ITokenService
     return await _tokenClient.CreateAsync(payload, context);
   }
 
-  public Task<CreatedToken> CreateAsync(string? subject, IEnumerable<TokenClaim> claims, string type, CancellationToken cancellationToken)
+  public async Task<CreatedToken> CreateAsync(string? subject, IEnumerable<TokenClaim> claims, string type, CancellationToken cancellationToken)
   {
-    throw new NotImplementedException(); // TODO(fpion): implement
+    CreateTokenPayload payload = new()
+    {
+      IsConsumable = true,
+      LifetimeSeconds = 3600,
+      Type = type,
+      Subject = subject,
+    };
+    payload.Claims.AddRange(claims);
+    RequestContext context = new(cancellationToken);
+    return await _tokenClient.CreateAsync(payload, context);
   }
 
   public async Task<ValidatedToken> ValidateAsync(string token, string type, CancellationToken cancellationToken)
