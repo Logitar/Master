@@ -1,4 +1,5 @@
-﻿using Logitar.Master.Contracts.Accounts;
+﻿using Logitar.Identity.Domain.Users;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Users;
 
@@ -38,8 +39,10 @@ public static class UserExtensions
 
   public static Phone ToPhone(this AccountPhone phone)
   {
-    return new Phone(phone.CountryCode, phone.Number, extension: null, e164Formatted: ""); // TODO(fpion): format to E.164
-  } // TODO(fpion): unit tests
+    Phone result = new(phone.CountryCode, phone.Number, extension: null, e164Formatted: string.Empty);
+    result.E164Formatted = result.FormatToE164();
+    return result;
+  }
 
   public static UserProfile ToUserProfile(this User user) => new()
   {

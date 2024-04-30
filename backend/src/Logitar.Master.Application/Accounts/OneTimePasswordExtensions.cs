@@ -25,8 +25,9 @@ public static class OneTimePasswordExtensions
 
   public static Phone GetPhone(this OneTimePassword oneTimePassword)
   {
-    return oneTimePassword.TryGetPhone() ?? throw new NotImplementedException(); // TODO(fpion): typed exception
-  } // TODO(fpion): unit tests
+    return oneTimePassword.TryGetPhone()
+      ?? throw new ArgumentException("The One-Time Password (OTP) does not have phone custom attributes.", nameof(oneTimePassword));
+  }
   public static Phone? TryGetPhone(this OneTimePassword oneTimePassword)
   {
     Phone phone = new();
@@ -51,7 +52,7 @@ public static class OneTimePasswordExtensions
       return null;
     }
     return phone;
-  } // TODO(fpion): unit tests
+  }
   public static void SetPhone(this CreateOneTimePasswordPayload payload, Phone phone)
   {
     if (phone.CountryCode != null)
@@ -60,7 +61,7 @@ public static class OneTimePasswordExtensions
     }
     payload.CustomAttributes.Add(new CustomAttribute(PhoneNumberKey, phone.Number));
     payload.CustomAttributes.Add(new CustomAttribute(PhoneE164FormattedKey, phone.E164Formatted));
-  } // TODO(fpion): unit tests
+  }
 
   public static void EnsurePurpose(this OneTimePassword oneTimePassword, string purpose)
   {
