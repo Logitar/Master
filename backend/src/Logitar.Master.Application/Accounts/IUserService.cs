@@ -3,7 +3,7 @@ using Logitar.Portal.Contracts.Users;
 
 namespace Logitar.Master.Application.Accounts;
 
-public interface IUserService
+public interface IUserService // TODO(fpion): refactor
 {
   Task<User> AuthenticateAsync(User user, string password, CancellationToken cancellationToken = default);
   Task<User> AuthenticateAsync(string uniqueName, string password, CancellationToken cancellationToken = default);

@@ -4,7 +4,7 @@ using Logitar.Portal.Contracts.Users;
 
 namespace Logitar.Master.Application.Accounts;
 
-public interface IOneTimePasswordService
+public interface IOneTimePasswordService // TODO(fpion): refactor
 {
   Task<OneTimePassword> CreateAsync(User user, string purpose, CancellationToken cancellationToken = default);
   Task<OneTimePassword> CreateAsync(User user, Phone phone, string purpose, CancellationToken cancellationToken = default);
