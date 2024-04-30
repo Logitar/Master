@@ -93,17 +93,6 @@ public class UserExtensionsTests
     Assert.Contains(payload.CustomAttributes, c => c.Key == nameof(MultiFactorAuthenticationMode) && c.Value == mfaMode.ToString());
   }
 
-  //[Fact(DisplayName = "ToPhonePayload: it should return the correct phone payload.")]
-  //public void ToPhonePayload_it_should_return_the_correct_phone_payload()
-  //{
-  //  Contracts.Accounts.Phone phone = new("CA", "+15148454636");
-  //  PhonePayload payload = phone.ToPhonePayload();
-  //  Assert.Equal(phone.CountryCode, payload.CountryCode);
-  //  Assert.Equal(phone.Number, payload.Number);
-  //  Assert.Null(payload.Extension);
-  //  Assert.True(payload.IsVerified);
-  //}
-
   [Fact(DisplayName = "ToUserProfile: it should return the correct user profile.")]
   public void ToUserProfile_it_should_return_the_correct_user_profile()
   {

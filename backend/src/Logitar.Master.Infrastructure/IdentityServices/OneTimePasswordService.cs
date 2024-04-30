@@ -22,6 +22,10 @@ internal class OneTimePasswordService : IOneTimePasswordService
 
   public async Task<OneTimePassword> CreateAsync(User user, string purpose, CancellationToken cancellationToken)
   {
+    return await CreateAsync(user, purpose, phone: null, cancellationToken);
+  }
+  public async Task<OneTimePassword> CreateAsync(User user, string purpose, Phone? phone, CancellationToken cancellationToken)
+  {
     CreateOneTimePasswordPayload payload = new(Characters, Length)
     {
       ExpiresOn = DateTime.Now.AddSeconds(LifetimeSeconds),
@@ -29,6 +33,10 @@ internal class OneTimePasswordService : IOneTimePasswordService
     };
     payload.SetUserId(user);
     payload.SetPurpose(purpose);
+    if (phone != null)
+    {
+      payload.SetPhone(phone);
+    }
     RequestContext context = new(user.Id.ToString(), cancellationToken);
     return await _oneTimePasswordClient.CreateAsync(payload, context);
   }

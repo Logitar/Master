@@ -36,6 +36,11 @@ public static class UserExtensions
     return customAttribute == null ? null : DateTime.Parse(customAttribute.Value);
   }
 
+  public static Phone ToPhone(this AccountPhone phone)
+  {
+    return new Phone(phone.CountryCode, phone.Number, extension: null, e164Formatted: ""); // TODO(fpion): format to E.164
+  } // TODO(fpion): unit tests
+
   public static UserProfile ToUserProfile(this User user) => new()
   {
     CreatedOn = user.CreatedOn,
