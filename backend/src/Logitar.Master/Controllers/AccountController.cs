@@ -63,6 +63,14 @@ public class AccountController : ControllerBase
     return Ok(response);
   }
 
+  [HttpPut("/phone/change")]
+  [Authorize]
+  public async Task<ActionResult<ChangePhoneResult>> ChangePhoneAsync([FromBody] ChangePhonePayload payload, CancellationToken cancellationToken)
+  {
+    ChangePhoneResult result = await _requestPipeline.ExecuteAsync(new ChangePhoneCommand(payload), cancellationToken);
+    return Ok(result);
+  }
+
   [HttpGet("/profile")]
   [Authorize]
   public ActionResult<UserProfile> GetProfile()

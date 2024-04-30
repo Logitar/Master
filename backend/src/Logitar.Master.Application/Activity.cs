@@ -1,5 +1,6 @@
 ﻿using Logitar.EventSourcing;
 using Logitar.Portal.Contracts.Actors;
+using Logitar.Portal.Contracts.Users;
 
 namespace Logitar.Master.Application;
 
@@ -32,11 +33,24 @@ public abstract record Activity : IActivity
   }
   public ActorId ActorId => new(Actor.Id);
 
+  public User? User
+  {
+    get
+    {
+      if (_context == null)
+      {
+        throw new InvalidOperationException($"The activity has been been contextualized yet. You must call the '{nameof(Contextualize)}' method.");
+      }
+
+      return _context.User;
+    }
+  }
+
   public void Contextualize(ActivityContext context)
   {
     if (_context != null)
     {
-      throw new InvalidOperationException($"The activity has already been populated. You may only call the '{nameof(Contextualize)}' method once.");
+      throw new InvalidOperationException($"The activity has already been contextualized. You may only call the '{nameof(Contextualize)}' method once.");
     }
 
     _context = context;

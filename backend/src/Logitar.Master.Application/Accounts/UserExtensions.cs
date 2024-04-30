@@ -1,4 +1,5 @@
-﻿using Logitar.Master.Contracts.Accounts;
+﻿using Logitar.Identity.Domain.Users;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Users;
 
@@ -34,6 +35,13 @@ public static class UserExtensions
   {
     CustomAttribute? customAttribute = user.CustomAttributes.SingleOrDefault(x => x.Key == ProfileCompletedOnKey);
     return customAttribute == null ? null : DateTime.Parse(customAttribute.Value);
+  }
+
+  public static Phone ToPhone(this AccountPhone phone)
+  {
+    Phone result = new(phone.CountryCode?.CleanTrim(), phone.Number.Trim(), extension: null, e164Formatted: string.Empty);
+    result.E164Formatted = result.FormatToE164();
+    return result;
   }
 
   public static UserProfile ToUserProfile(this User user) => new()

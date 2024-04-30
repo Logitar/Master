@@ -57,7 +57,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       return await CompleteProfileAsync(payload.Profile, command.CustomAttributes, cancellationToken);
     }
 
-    throw new InvalidOperationException($"The {nameof(SignInPayload)} is not valid.");
+    throw new ArgumentException($"The '{nameof(command.Payload)}' is not valid.", nameof(command));
   }
 
   private async Task<SignInCommandResult> HandleCredentialsAsync(Credentials credentials, string locale, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)

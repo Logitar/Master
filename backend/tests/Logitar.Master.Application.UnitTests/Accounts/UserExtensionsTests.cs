@@ -93,16 +93,23 @@ public class UserExtensionsTests
     Assert.Contains(payload.CustomAttributes, c => c.Key == nameof(MultiFactorAuthenticationMode) && c.Value == mfaMode.ToString());
   }
 
-  //[Fact(DisplayName = "ToPhonePayload: it should return the correct phone payload.")]
-  //public void ToPhonePayload_it_should_return_the_correct_phone_payload()
-  //{
-  //  Contracts.Accounts.Phone phone = new("CA", "+15148454636");
-  //  PhonePayload payload = phone.ToPhonePayload();
-  //  Assert.Equal(phone.CountryCode, payload.CountryCode);
-  //  Assert.Equal(phone.Number, payload.Number);
-  //  Assert.Null(payload.Extension);
-  //  Assert.True(payload.IsVerified);
-  //}
+  [Theory(DisplayName = "ToPhone: it should return the correct phone.")]
+  [InlineData("CA", "(514) 845-4636", "+15148454636")]
+  [InlineData("", "(514) 845-4636", "+15148454636")]
+  [InlineData("  ", "  (514) 845-4636  ", "+15148454636")]
+  [InlineData(null, "(514) 845-4636", "+15148454636")]
+  public void ToPhone_it_should_return_the_correct_phone(string? countryCode, string number, string e164Formatted)
+  {
+    AccountPhone phone = new(number, countryCode);
+    Phone result = phone.ToPhone();
+    Assert.Equal(phone.CountryCode?.CleanTrim(), result.CountryCode);
+    Assert.Equal(phone.Number.Trim(), result.Number);
+    Assert.Null(result.Extension);
+    Assert.Equal(e164Formatted, result.E164Formatted);
+    Assert.False(result.IsVerified);
+    Assert.Null(result.VerifiedBy);
+    Assert.Null(result.VerifiedOn);
+  }
 
   [Fact(DisplayName = "ToUserProfile: it should return the correct user profile.")]
   public void ToUserProfile_it_should_return_the_correct_user_profile()
