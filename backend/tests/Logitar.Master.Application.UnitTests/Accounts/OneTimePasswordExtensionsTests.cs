@@ -106,6 +106,22 @@ public class OneTimePasswordExtensionsTests
     Assert.True(password.HasPurpose(Purpose.ToLower()));
   }
 
+  [Fact(DisplayName = "SetPhone: it should set the correct phone.")]
+  public void SetPhone_it_should_set_the_correct_phone()
+  {
+    Phone phone = new(countryCode: "CA", number: "(514) 845-4636", extension: "12345", e164Formatted: "+15148454636")
+    {
+      IsVerified = true
+    };
+    CreateOneTimePasswordPayload payload = new("0123456789", length: 6);
+    payload.SetPhone(phone);
+
+    Assert.Equal(3, payload.CustomAttributes.Count);
+    Assert.Contains(payload.CustomAttributes, c => c.Key == "PhoneCountryCode" && c.Value == phone.CountryCode);
+    Assert.Contains(payload.CustomAttributes, c => c.Key == "PhoneNumber" && c.Value == phone.Number);
+    Assert.Contains(payload.CustomAttributes, c => c.Key == "PhoneE164Formatted" && c.Value == phone.E164Formatted);
+  }
+
   [Fact(DisplayName = "SetPurpose: it should add the correct custom attribute.")]
   public void SetPurpose_it_should_add_the_correct_custom_attribute()
   {

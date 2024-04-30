@@ -44,7 +44,7 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
     throw new ArgumentException($"The '{nameof(command)}.{nameof(command.Payload)}' is not valid.", nameof(command));
   }
 
-  private async Task<ChangePhoneResult> HandlePhoneAsync(AccountPhone phone, string locale, string? profileCompletionToken, User? user, CancellationToken cancellationToken)
+  private async Task<ChangePhoneResult> HandlePhoneAsync(AccountPhone newPhone, string locale, string? profileCompletionToken, User? user, CancellationToken cancellationToken)
   {
     if (user == null)
     {
@@ -52,8 +52,8 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
       user = await FindUserAsync(profileCompletionToken, cancellationToken);
     }
 
-    Phone contact = new(phone.CountryCode, phone.Number, extension: null, e164Formatted: "TODO");
-    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, contact, ContactVerificationPurpose, cancellationToken);
+    Phone phone = new(newPhone.CountryCode, newPhone.Number, extension: null, e164Formatted: "TODO");
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, ContactVerificationPurpose, phone, cancellationToken);
     if (oneTimePassword.Password == null)
     {
       throw new InvalidOperationException($"The One-Time Password (OTP) 'Id={oneTimePassword.Id}' has no password.");
@@ -63,8 +63,8 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
       ["OneTimePassword"] = oneTimePassword.Password
     };
     string template = ContactVerificationTemplate.Replace("{ContactType}", ContactType.Phone.ToString());
-    SentMessages sentMessages = await _messageService.SendAsync(template, contact, locale, variables, cancellationToken);
-    SentMessage sentMessage = sentMessages.ToSentMessage(contact);
+    SentMessages sentMessages = await _messageService.SendAsync(template, phone, locale, variables, cancellationToken);
+    SentMessage sentMessage = sentMessages.ToSentMessage(phone);
     OneTimePasswordValidation oneTimePasswordValidation = new(oneTimePassword, sentMessage);
 
     return new ChangePhoneResult(oneTimePasswordValidation);

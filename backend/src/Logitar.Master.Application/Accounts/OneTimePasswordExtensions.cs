@@ -45,7 +45,7 @@ public static class OneTimePasswordExtensions
     }
     return (phone.Number == null || phone.E164Formatted == null) ? null : phone;
   }
-  public static void SetPhone(this CreateOneTimePasswordPayload payload, Phone phone) // TODO(fpion): unit tests
+  public static void SetPhone(this CreateOneTimePasswordPayload payload, Phone phone)
   {
     if (phone.CountryCode != null)
     {
