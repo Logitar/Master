@@ -43,7 +43,7 @@ public class ChangePhoneCommandTests : IntegrationTests
     Assert.Equal(sentMessages.ToSentMessage(phone), result.OneTimePasswordValidation.SentMessage);
   }
 
-  [Fact(DisplayName = "It should throw InvalidOneTimePasswordUserException when the One Time Password was meant for another user.")]
+  [Fact(DisplayName = "It should throw InvalidOneTimePasswordUserException when the One-Time Password was meant for another user.")]
   public async Task It_should_throw_InvalidOneTimePasswordUserException_when_the_One_Time_Password_was_meant_for_another_user()
   {
     OneTimePassword oneTimePassword = new()
