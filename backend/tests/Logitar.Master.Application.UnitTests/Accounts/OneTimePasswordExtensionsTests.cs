@@ -207,7 +207,7 @@ public class OneTimePasswordExtensionsTests
     Assert.Single(payload.CustomAttributes, c => c.Key == "UserId" && c.Value == user.Id.ToString());
   }
 
-  [Theory(DisplayName = "TryGetPhone: it should return null when the One Time Password does not have the custom attributes.")]
+  [Theory(DisplayName = "TryGetPhone: it should return null when the One-Time Password does not have the custom attributes.")]
   [InlineData(null, null)]
   [InlineData("(514) 845-4636", null)]
   [InlineData(null, "+15148454636")]
@@ -275,7 +275,7 @@ public class OneTimePasswordExtensionsTests
     Assert.Null(oneTimePassword.TryGetUserId());
   }
 
-  [Fact(DisplayName = "TryGetUserId: it should return the user Id when the One Time Password has one.")]
+  [Fact(DisplayName = "TryGetUserId: it should return the user Id when the One-Time Password has one.")]
   public void TryGetUserId_it_should_return_the_user_Id_when_the_One_Time_Password_has_one()
   {
     Guid userId = Guid.NewGuid();

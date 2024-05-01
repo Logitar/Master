@@ -7,8 +7,6 @@ public record CompleteProfilePayload : SaveProfilePayload
   public string? Password { get; set; }
   public MultiFactorAuthenticationMode MultiFactorAuthenticationMode { get; set; }
 
-  public string? PhoneNumber { get; set; }
-
   public CompleteProfilePayload() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty)
   {
   }

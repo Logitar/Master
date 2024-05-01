@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Logitar.Master.Application.Accounts.Validators;
+using Logitar.Master.Application.Constants;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts.Messages;
 using Logitar.Portal.Contracts.Passwords;
@@ -10,9 +11,6 @@ namespace Logitar.Master.Application.Accounts.Commands;
 
 internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, ChangePhoneResult>
 {
-  private const string ContactVerificationPurpose = "ContactVerification";
-  private const string ContactVerificationTemplate = "ContactVerification{ContactType}";
-
   private readonly IMessageService _messageService;
   private readonly IOneTimePasswordService _oneTimePasswordService;
   private readonly IUserService _userService;
@@ -49,7 +47,7 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
   private async Task<ChangePhoneResult> HandleNewPhoneAsync(AccountPhone newPhone, string locale, User user, CancellationToken cancellationToken)
   {
     Phone phone = newPhone.ToPhone();
-    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, ContactVerificationPurpose, phone, cancellationToken);
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, Purposes.ContactVerification, phone, cancellationToken);
     if (oneTimePassword.Password == null)
     {
       throw new InvalidOperationException($"The One-Time Password (OTP) 'Id={oneTimePassword.Id}' has no password.");
@@ -58,7 +56,7 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
     {
       ["OneTimePassword"] = oneTimePassword.Password
     };
-    string template = ContactVerificationTemplate.Replace("{ContactType}", ContactType.Phone.ToString());
+    string template = Templates.GetContactVerification(ContactType.Phone);
     SentMessages sentMessages = await _messageService.SendAsync(template, phone, locale, variables, cancellationToken);
     SentMessage sentMessage = sentMessages.ToSentMessage(phone);
     OneTimePasswordValidation oneTimePasswordValidation = new(oneTimePassword, sentMessage);
@@ -67,7 +65,7 @@ internal class ChangePhoneCommandHandler : IRequestHandler<ChangePhoneCommand, C
 
   private async Task<ChangePhoneResult> HandleOneTimePasswordAsync(OneTimePasswordPayload payload, User user, CancellationToken cancellationToken)
   {
-    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, ContactVerificationPurpose, cancellationToken);
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, Purposes.ContactVerification, cancellationToken);
     Guid userId = oneTimePassword.GetUserId();
     if (userId != user.Id)
     {

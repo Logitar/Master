@@ -1,4 +1,5 @@
 ﻿using Logitar.Master.Application.Accounts.Events;
+using Logitar.Master.Application.Constants;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
@@ -12,12 +13,6 @@ namespace Logitar.Master.Application.Accounts.Commands;
 
 internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInCommandResult>
 {
-  private const string AuthenticationTokenType = "auth+jwt";
-  private const string MultiFactorAuthenticationPurpose = "MultiFactorAuthentication";
-  private const string MultiFactorAuthenticationTemplate = "MultiFactorAuthentication{ContactType}";
-  private const string PasswordlessTemplate = "AccountAuthentication";
-  private const string ProfileTokenType = "profile+jwt";
-
   private readonly IMessageService _messageService;
   private readonly IOneTimePasswordService _oneTimePasswordService;
   private readonly IPublisher _publisher;
@@ -66,14 +61,14 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     if (user == null || !user.HasPassword)
     {
       Email email = user?.Email ?? new(credentials.EmailAddress);
-      CreatedToken token = await _tokenService.CreateAsync(user?.GetSubject(), email, AuthenticationTokenType, cancellationToken);
+      CreatedToken token = await _tokenService.CreateAsync(user?.GetSubject(), email, TokenTypes.Authentication, cancellationToken);
       Dictionary<string, string> variables = new()
       {
         ["Token"] = token.Token
       };
       SentMessages sentMessages = user == null
-        ? await _messageService.SendAsync(PasswordlessTemplate, email, locale, variables, cancellationToken)
-        : await _messageService.SendAsync(PasswordlessTemplate, user, locale, variables, cancellationToken);
+        ? await _messageService.SendAsync(Templates.AccountAuthentication, email, locale, variables, cancellationToken)
+        : await _messageService.SendAsync(Templates.AccountAuthentication, user, locale, variables, cancellationToken);
       SentMessage sentMessage = sentMessages.ToSentMessage(email);
       return SignInCommandResult.AuthenticationLinkSent(sentMessage);
     }
@@ -109,7 +104,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       ContactType.Phone => user.Phone ?? throw new ArgumentException($"The user 'Id={user.Id}' has no phone.", nameof(user)),
       _ => throw new ArgumentException($"The contact type '{contactType}' is not supported.", nameof(contactType)),
     };
-    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, MultiFactorAuthenticationPurpose, cancellationToken);
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.CreateAsync(user, Purposes.MultiFactorAuthentication, cancellationToken);
     if (oneTimePassword.Password == null)
     {
       throw new InvalidOperationException($"The One-Time Password (OTP) 'Id={oneTimePassword.Id}' has no password.");
@@ -118,7 +113,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
     {
       ["OneTimePassword"] = oneTimePassword.Password
     };
-    string template = MultiFactorAuthenticationTemplate.Replace("{ContactType}", contactType.ToString());
+    string template = Templates.GetMultiFactorAuthentication(contactType);
     SentMessages sentMessages = await _messageService.SendAsync(template, user, locale, variables, cancellationToken);
     SentMessage sentMessage = sentMessages.ToSentMessage(contact);
     return SignInCommandResult.RequireOneTimePasswordValidation(oneTimePassword, sentMessage);
@@ -126,7 +121,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private async Task<SignInCommandResult> HandleAuthenticationTokenAsync(string token, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
-    ValidatedToken validatedToken = await _tokenService.ValidateAsync(token, AuthenticationTokenType, cancellationToken);
+    ValidatedToken validatedToken = await _tokenService.ValidateAsync(token, TokenTypes.Authentication, cancellationToken);
     Email? email = validatedToken.Email == null ? null : new(validatedToken.Email.Address)
     {
       IsVerified = true
@@ -158,7 +153,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private async Task<SignInCommandResult> HandleOneTimePasswordAsync(OneTimePasswordPayload payload, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
-    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, MultiFactorAuthenticationPurpose, cancellationToken);
+    OneTimePassword oneTimePassword = await _oneTimePasswordService.ValidateAsync(payload, Purposes.MultiFactorAuthentication, cancellationToken);
     Guid userId = oneTimePassword.GetUserId();
     User user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
 
@@ -167,14 +162,15 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   private async Task<SignInCommandResult> CompleteProfileAsync(CompleteProfilePayload payload, IEnumerable<CustomAttribute> customAttributes, CancellationToken cancellationToken)
   {
-    ValidatedToken validatedToken = await _tokenService.ValidateAsync(payload.Token, ProfileTokenType, cancellationToken);
+    ValidatedToken validatedToken = await _tokenService.ValidateAsync(payload.Token, TokenTypes.Profile, cancellationToken);
     if (validatedToken.Subject == null)
     {
       throw new InvalidOperationException($"The claim '{validatedToken.Subject}' is required.");
     }
     Guid userId = Guid.Parse(validatedToken.Subject);
     User user = await _userService.FindAsync(userId, cancellationToken) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
-    user = await _userService.SaveProfileAsync(user.Id, payload, cancellationToken);
+    Phone? phone = validatedToken.GetPhone();
+    user = await _userService.CompleteProfileAsync(user.Id, payload, phone, cancellationToken);
 
     return await EnsureProfileIsCompleted(user, customAttributes, cancellationToken);
   }
@@ -183,7 +179,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
   {
     if (!user.IsProfileCompleted())
     {
-      CreatedToken token = await _tokenService.CreateAsync(user.GetSubject(), ProfileTokenType, cancellationToken);
+      CreatedToken token = await _tokenService.CreateAsync(user.GetSubject(), TokenTypes.Profile, cancellationToken);
       return SignInCommandResult.RequireProfileCompletion(token);
     }
 

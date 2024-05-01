@@ -26,6 +26,23 @@ internal class UserService : IUserService
     return await _userClient.AuthenticateAsync(payload, context);
   }
 
+  public async Task<User> CompleteProfileAsync(Guid userId, CompleteProfilePayload profile, Phone? phone, CancellationToken cancellationToken)
+  {
+    UpdateUserPayload payload = profile.ToUpdateUserPayload();
+    if (profile.Password != null)
+    {
+      payload.Password = new ChangePasswordPayload(profile.Password);
+    }
+    if (phone != null)
+    {
+      payload.Phone = new Modification<PhonePayload>(phone.ToPhonePayload());
+    }
+    payload.CompleteProfile();
+    payload.SetMultiFactorAuthenticationMode(profile.MultiFactorAuthenticationMode);
+    RequestContext context = new(userId.ToString(), cancellationToken);
+    return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
+  }
+
   public async Task<User> CreateAsync(Email email, CancellationToken cancellationToken)
   {
     CreateUserPayload payload = new(email.Address)
@@ -50,31 +67,7 @@ internal class UserService : IUserService
 
   public async Task<User> SaveProfileAsync(Guid userId, SaveProfilePayload profile, CancellationToken cancellationToken)
   {
-    UpdateUserPayload payload = new()
-    {
-      FirstName = new Modification<string>(profile.FirstName),
-      MiddleName = new Modification<string>(profile.MiddleName),
-      LastName = new Modification<string>(profile.LastName),
-      Birthdate = new Modification<DateTime?>(profile.Birthdate),
-      Gender = new Modification<string>(profile.Gender),
-      Locale = new Modification<string>(profile.Locale),
-      TimeZone = new Modification<string>(profile.TimeZone)
-    };
-
-    if (profile is CompleteProfilePayload completedProfile)
-    {
-      if (completedProfile.Password != null)
-      {
-        payload.Password = new ChangePasswordPayload(completedProfile.Password);
-      }
-      if (completedProfile.PhoneNumber != null)
-      {
-        payload.Phone = new Modification<PhonePayload>(new PhonePayload(countryCode: null, completedProfile.PhoneNumber, extension: null, isVerified: false));
-      }
-      payload.CompleteProfile();
-      payload.SetMultiFactorAuthenticationMode(completedProfile.MultiFactorAuthenticationMode);
-    }
-
+    UpdateUserPayload payload = profile.ToUpdateUserPayload();
     RequestContext context = new(userId.ToString(), cancellationToken);
     return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
   }
@@ -83,7 +76,7 @@ internal class UserService : IUserService
   {
     UpdateUserPayload payload = new()
     {
-      Email = new Modification<EmailPayload>(new EmailPayload(email.Address, email.IsVerified))
+      Email = new Modification<EmailPayload>(email.ToEmailPayload())
     };
     RequestContext context = new(userId.ToString(), cancellationToken);
     return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
@@ -93,7 +86,7 @@ internal class UserService : IUserService
   {
     UpdateUserPayload payload = new()
     {
-      Phone = new Modification<PhonePayload>(new PhonePayload(phone.CountryCode, phone.Number, phone.Extension, phone.IsVerified))
+      Phone = new Modification<PhonePayload>(phone.ToPhonePayload())
     };
     RequestContext context = new(userId.ToString(), cancellationToken);
     return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");

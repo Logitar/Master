@@ -1,7 +1,10 @@
 ﻿using Bogus;
+using Logitar.Master.Application.Constants;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
+using Logitar.Portal.Contracts.Tokens;
 using Logitar.Portal.Contracts.Users;
+using Logitar.Security.Claims;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Logitar.Master.Application.Accounts;
@@ -35,6 +38,38 @@ public class UserExtensionsTests
     User user = new(_faker.Person.UserName);
     user.CustomAttributes.Add(new(nameof(MultiFactorAuthenticationMode), mfaMode.ToString()));
     Assert.Equal(mfaMode, user.GetMultiFactorAuthenticationMode());
+  }
+
+  [Theory(DisplayName = "GetPhone: it should return the correct phone from token claims.")]
+  [InlineData(null, "(514) 845-4636", null, "+15148454636", false)]
+  [InlineData("CA", "(514) 845-4636", "98772", "+15148454636", true)]
+  [InlineData("CA", "(514) 845-4636", "98772", "", false)]
+  [InlineData("CA", "          ", null, "+15148454636", false)]
+  public void GetPhone_it_should_return_the_correct_phone_from_token_claims(string? countryCode, string number, string? extension, string e164Formatted, bool isVerified)
+  {
+    ValidatedToken validatedToken = new();
+    if (countryCode != null)
+    {
+      validatedToken.Claims.Add(new TokenClaim(ClaimNames.PhoneCountryCode, countryCode));
+    }
+    validatedToken.Claims.Add(new TokenClaim(ClaimNames.PhoneNumberRaw, number));
+    validatedToken.Claims.Add(new TokenClaim(Rfc7519ClaimNames.PhoneNumber, extension == null ? e164Formatted : $"{e164Formatted};ext={extension}"));
+    validatedToken.Claims.Add(new TokenClaim(Rfc7519ClaimNames.IsPhoneVerified, isVerified.ToString().ToLower(), ClaimValueTypes.Boolean));
+
+    Phone? phone = validatedToken.GetPhone();
+    if (string.IsNullOrWhiteSpace(number) || string.IsNullOrWhiteSpace(e164Formatted))
+    {
+      Assert.Null(phone);
+    }
+    else
+    {
+      Assert.NotNull(phone);
+      Assert.Equal(countryCode, phone.CountryCode);
+      Assert.Equal(number, phone.Number);
+      Assert.Equal(extension, phone.Extension);
+      Assert.Equal(e164Formatted, phone.E164Formatted);
+      Assert.Equal(isVerified, phone.IsVerified);
+    }
   }
 
   [Fact(DisplayName = "GetProfileCompleted: it should return null when the user profile is not completed.")]
@@ -91,6 +126,56 @@ public class UserExtensionsTests
 
     payload.SetMultiFactorAuthenticationMode(mfaMode);
     Assert.Contains(payload.CustomAttributes, c => c.Key == nameof(MultiFactorAuthenticationMode) && c.Value == mfaMode.ToString());
+  }
+
+  [Fact(DisplayName = "ToEmailPayload: it should return the correct payload.")]
+  public void ToEmailPayload_it_should_return_the_correct_payload()
+  {
+    Email email = new(_faker.Person.Email);
+    EmailPayload payload = email.ToEmailPayload();
+    Assert.Equal(email.Address, payload.Address);
+    Assert.Equal(email.IsVerified, payload.IsVerified);
+
+    payload = email.ToEmailPayload(isVerified: true);
+    Assert.Equal(email.Address, payload.Address);
+    Assert.True(payload.IsVerified);
+  }
+
+  [Fact(DisplayName = "ToPhonePayload: it should return the correct payload.")]
+  public void ToPhonePayload_it_should_return_the_correct_payload()
+  {
+    Phone phone = new("CA", "(514) 845-4636", "123456", "+15148454636");
+    PhonePayload payload = phone.ToPhonePayload();
+    Assert.Equal(phone.CountryCode, payload.CountryCode);
+    Assert.Equal(phone.Number, payload.Number);
+    Assert.Equal(phone.Extension, payload.Extension);
+    Assert.Equal(phone.IsVerified, payload.IsVerified);
+
+    payload = phone.ToPhonePayload(isVerified: true);
+    Assert.Equal(phone.CountryCode, payload.CountryCode);
+    Assert.Equal(phone.Number, payload.Number);
+    Assert.Equal(phone.Extension, payload.Extension);
+    Assert.True(payload.IsVerified);
+  }
+
+  [Fact(DisplayName = "ToUpdateUserPayload: it should return the correct payload.")]
+  public void ToUpdateUserPayload_it_should_return_the_correct_payload()
+  {
+    SaveProfilePayload payload = new(_faker.Person.FirstName, _faker.Person.LastName, _faker.Locale, "America/Montreal")
+    {
+      MiddleName = null,
+      Birthdate = _faker.Person.DateOfBirth,
+      Gender = _faker.Person.Gender.ToString().ToLower()
+    };
+    UpdateUserPayload update = payload.ToUpdateUserPayload();
+    Assert.Equal(payload.FirstName, update.FirstName?.Value);
+    Assert.NotNull(update.MiddleName);
+    Assert.Equal(payload.MiddleName, update.MiddleName.Value);
+    Assert.Equal(payload.LastName, update.LastName?.Value);
+    Assert.Equal(payload.Birthdate, update.Birthdate?.Value);
+    Assert.Equal(payload.Gender, update.Gender?.Value);
+    Assert.Equal(payload.Locale, update.Locale?.Value);
+    Assert.Equal(payload.TimeZone, update.TimeZone?.Value);
   }
 
   [Theory(DisplayName = "ToPhone: it should return the correct phone.")]

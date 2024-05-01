@@ -71,6 +71,13 @@ public class AccountController : ControllerBase
     return Ok(result);
   }
 
+  [HttpPost("/phone/verify")]
+  public async Task<ActionResult<VerifyPhoneResult>> VerifyPhoneAsync([FromBody] VerifyPhonePayload payload, CancellationToken cancellationToken)
+  {
+    VerifyPhoneResult result = await _requestPipeline.ExecuteAsync(new VerifyPhoneCommand(payload), cancellationToken);
+    return Ok(result);
+  }
+
   [HttpGet("/profile")]
   [Authorize]
   public ActionResult<UserProfile> GetProfile()

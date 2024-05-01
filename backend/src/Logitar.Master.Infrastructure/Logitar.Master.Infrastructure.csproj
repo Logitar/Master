@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Logitar.EventSourcing.Infrastructure" Version="5.0.2" />
+    <PackageReference Include="Logitar.Security" Version="6.1.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
   </ItemGroup>
 
@@ -24,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="System.Security.Claims" />
     <Using Include="System.Text.Json" />
     <Using Include="System.Text.Json.Serialization" />
   </ItemGroup>
