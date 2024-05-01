@@ -4,7 +4,6 @@ using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Tokens;
 using Logitar.Portal.Contracts.Users;
 using Logitar.Security.Claims;
-using System.Security.Claims;
 
 namespace Logitar.Master.Infrastructure.IdentityServices;
 

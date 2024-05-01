@@ -25,7 +25,7 @@ public static class UserExtensions
     payload.CustomAttributes.Add(new CustomAttributeModification(MultiFactorAuthenticationModeKey, mode.ToString()));
   }
 
-  public static Phone? GetPhone(this ValidatedToken validatedToken) // TODO(fpion): unit tests
+  public static Phone? GetPhone(this ValidatedToken validatedToken)
   {
     Phone phone = new();
     foreach (TokenClaim claim in validatedToken.Claims)
@@ -55,7 +55,7 @@ public static class UserExtensions
           break;
       }
     }
-    if (string.IsNullOrEmpty(phone.Number) || string.IsNullOrEmpty(phone.E164Formatted))
+    if (string.IsNullOrWhiteSpace(phone.Number) || string.IsNullOrWhiteSpace(phone.E164Formatted))
     {
       return null;
     }
@@ -79,8 +79,8 @@ public static class UserExtensions
     return customAttribute == null ? null : DateTime.Parse(customAttribute.Value);
   }
 
-  public static EmailPayload ToEmailPayload(this Email email) => email.ToEmailPayload(email.IsVerified); // TODO(fpion): unit tests
-  public static EmailPayload ToEmailPayload(this IEmail email, bool isVerified = false) => new(email.Address, isVerified); // TODO(fpion): unit tests
+  public static EmailPayload ToEmailPayload(this Email email) => email.ToEmailPayload(email.IsVerified);
+  public static EmailPayload ToEmailPayload(this IEmail email, bool isVerified = false) => new(email.Address, isVerified);
 
   public static Phone ToPhone(this AccountPhone phone)
   {
@@ -89,8 +89,8 @@ public static class UserExtensions
     return result;
   }
 
-  public static PhonePayload ToPhonePayload(this Phone phone) => phone.ToPhonePayload(phone.IsVerified); // TODO(fpion): unit tests
-  public static PhonePayload ToPhonePayload(this IPhone phone, bool isVerified = false) => new(phone.CountryCode, phone.Number, phone.Extension, isVerified); // TODO(fpion): unit tests
+  public static PhonePayload ToPhonePayload(this Phone phone) => phone.ToPhonePayload(phone.IsVerified);
+  public static PhonePayload ToPhonePayload(this IPhone phone, bool isVerified = false) => new(phone.CountryCode, phone.Number, phone.Extension, isVerified);
 
   public static UpdateUserPayload ToUpdateUserPayload(this SaveProfilePayload payload) => new()
   {
@@ -101,7 +101,7 @@ public static class UserExtensions
     Gender = new Modification<string>(payload.Gender),
     Locale = new Modification<string>(payload.Locale),
     TimeZone = new Modification<string>(payload.TimeZone)
-  }; // TODO(fpion): unit tests
+  };
 
   public static UserProfile ToUserProfile(this User user) => new()
   {
