@@ -1,10 +1,12 @@
-﻿using Logitar.Master.Contracts.Accounts;
+﻿using Logitar.Master.Application.Constants;
+using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
 using Logitar.Portal.Contracts.Passwords;
 using Logitar.Portal.Contracts.Sessions;
 using Logitar.Portal.Contracts.Tokens;
 using Logitar.Portal.Contracts.Users;
+using Logitar.Security.Claims;
 using Moq;
 
 namespace Logitar.Master.Application.Accounts.Commands;
@@ -25,7 +27,6 @@ public class SignInCommandTests : IntegrationTests
       {
         Password = "P@s$W0rD",
         MultiFactorAuthenticationMode = MultiFactorAuthenticationMode.Phone,
-        PhoneNumber = "(514) 845-4636",
         Birthdate = Faker.Person.DateOfBirth,
         Gender = Faker.Person.Gender.ToString().ToLower()
       }
@@ -45,7 +46,10 @@ public class SignInCommandTests : IntegrationTests
     {
       HasPassword = true,
       Email = user.Email,
-      Phone = new Phone(countryCode: "CA", "(514) 845-4636", extension: null, e164Formatted: "+15148454636"),
+      Phone = new Phone(countryCode: "CA", "(514) 845-4636", extension: null, e164Formatted: "+15148454636")
+      {
+        IsVerified = true
+      },
       FirstName = Faker.Person.FirstName,
       LastName = Faker.Person.LastName,
       FullName = Faker.Person.FullName,
@@ -56,12 +60,17 @@ public class SignInCommandTests : IntegrationTests
     };
     updatedUser.CustomAttributes.Add(new CustomAttribute("MultiFactorAuthenticationMode", MultiFactorAuthenticationMode.Phone.ToString()));
     updatedUser.CustomAttributes.Add(new CustomAttribute("ProfileCompletedOn", DateTime.Now.ToString("O", CultureInfo.InvariantCulture)));
-    UserService.Setup(x => x.SaveProfileAsync(user.Id, payload.Profile, CancellationToken)).ReturnsAsync(updatedUser);
+    UserService.Setup(x => x.CompleteProfileAsync(user.Id, payload.Profile, updatedUser.Phone, CancellationToken)).ReturnsAsync(updatedUser);
 
     ValidatedToken validatedToken = new()
     {
       Subject = user.Id.ToString()
     };
+    Assert.NotNull(updatedUser.Phone.CountryCode);
+    validatedToken.Claims.Add(new TokenClaim(ClaimNames.PhoneCountryCode, updatedUser.Phone.CountryCode));
+    validatedToken.Claims.Add(new TokenClaim(ClaimNames.PhoneNumberRaw, updatedUser.Phone.Number));
+    validatedToken.Claims.Add(new TokenClaim(Rfc7519ClaimNames.PhoneNumber, updatedUser.Phone.E164Formatted));
+    validatedToken.Claims.Add(new TokenClaim(Rfc7519ClaimNames.IsPhoneVerified, "true"));
     TokenService.Setup(x => x.ValidateAsync(payload.Profile.Token, "profile+jwt", CancellationToken)).ReturnsAsync(validatedToken);
 
     Session session = new(updatedUser);
