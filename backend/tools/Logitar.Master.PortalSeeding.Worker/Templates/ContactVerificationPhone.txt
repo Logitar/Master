@@ -1,0 +1,1 @@
+@(Model.Resource("ContactVerificationPhone_Content").Replace("{OneTimePassword}", Model.Variable("OneTimePassword")))

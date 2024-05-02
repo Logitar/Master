@@ -1,0 +1,22 @@
+﻿[
+  {
+    "UniqueKey": "AccountAuthentication",
+    "DisplayName": "Account Authentication",
+    "Description": "This is the account creation & passwordless sign-in email template."
+  },
+  {
+    "UniqueKey": "ContactVerificationPhone",
+    "DisplayName": "Contact Verification (Phone)",
+    "Description": "This is the phone verification template."
+  },
+  {
+    "UniqueKey": "MultiFactorAuthenticationEmail",
+    "DisplayName": "Multi-Factor Authentication (Email)",
+    "Description": "This is the email multi-factor authentication template."
+  },
+  {
+    "UniqueKey": "MultiFactorAuthenticationPhone",
+    "DisplayName": "Multi-Factor Authentication (Phone)",
+    "Description": "This is the phone multi-factor authentication template."
+  }
+]

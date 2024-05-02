@@ -1,0 +1,14 @@
+﻿{
+  "AccountAuthentication_ClickLink": "S’il s’agit bien de vous, cliquez sur le lien ci-dessous afin d’accéder à votre compte.",
+  "AccountAuthentication_Reason": "Vous avez reçu ce courriel puisque quelqu’un a tenté d’accéder à votre compte.",
+  "AccountAuthentication_Subject": "Accédez à votre compte",
+  "ContactVerificationPhone_Content": "Votre code à usage unique est arrivé : {OneTimePassword}. Ne le divulguez à personne.",
+  "ContactVerificationPhone_Subject": "Vérification du numéro de téléphone",
+  "Cordially": "Cordialement,",
+  "Hello": "Bonjour {name} !",
+  "MultiFactorAuthenticationEmail_Content": "Votre code à usage unique est arrivé. Ne le divulguez à personne.",
+  "MultiFactorAuthenticationEmail_Subject": "Accédez à votre compte",
+  "MultiFactorAuthenticationPhone_Content": "Votre code à usage unique est arrivé : {OneTimePassword}. Ne le divulguez à personne.",
+  "MultiFactorAuthenticationPhone_Subject": "Accédez à votre compte",
+  "Team": "L’équipe Logitar"
+}
