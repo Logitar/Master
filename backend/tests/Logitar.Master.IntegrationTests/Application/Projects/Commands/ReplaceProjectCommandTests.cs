@@ -1,7 +1,7 @@
 ﻿using FluentValidation.Results;
+using Logitar.Identity.Domain.Shared;
 using Logitar.Master.Contracts.Projects;
 using Logitar.Master.Domain.Projects;
-using Logitar.Master.Domain.Shared;
 using Logitar.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 

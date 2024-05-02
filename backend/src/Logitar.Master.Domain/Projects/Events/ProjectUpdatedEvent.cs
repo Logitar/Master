@@ -1,6 +1,6 @@
 ﻿using Logitar.EventSourcing;
+using Logitar.Identity.Domain.Shared;
 using Logitar.Master.Contracts;
-using Logitar.Master.Domain.Shared;
 using MediatR;
 
 namespace Logitar.Master.Domain.Projects.Events;

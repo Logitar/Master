@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Logitar.Master.Domain.Shared;
+using Logitar.Identity.Domain.Shared;
 
 namespace Logitar.Master.Domain.Projects;
 

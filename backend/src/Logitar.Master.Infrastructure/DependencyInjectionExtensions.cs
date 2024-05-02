@@ -1,4 +1,5 @@
 ﻿using Logitar.EventSourcing.Infrastructure;
+using Logitar.Identity.Infrastructure.Converters;
 using Logitar.Master.Application;
 using Logitar.Master.Application.Accounts;
 using Logitar.Master.Application.Caching;
@@ -32,7 +33,6 @@ public static class DependencyInjectionExtensions
       .AddTransient<IApiKeyService, ApiKeyService>()
       .AddTransient<IMessageService, MessageService>()
       .AddTransient<IOneTimePasswordService, OneTimePasswordService>()
-      //.AddTransient<IRealmService, RealmService>()
       .AddTransient<ISessionService, SessionService>()
       .AddTransient<ITokenService, TokenService>()
       .AddTransient<IUserService, UserService>();

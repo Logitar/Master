@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
+using Logitar.Identity.Domain.Shared;
 using Logitar.Master.Contracts.Projects;
-using Logitar.Master.Domain.Shared;
 
 namespace Logitar.Master.Application.Projects.Validators;
 
