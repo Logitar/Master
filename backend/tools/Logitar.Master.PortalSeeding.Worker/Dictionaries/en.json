@@ -1,0 +1,14 @@
+﻿{
+  "AccountAuthentication_ClickLink": "If that someone is you, click the link below to access your account.",
+  "AccountAuthentication_Reason": "You received this message since someone tried to access your account.",
+  "AccountAuthentication_Subject": "Access your account",
+  "ContactVerificationPhone_Content": "Your one-time code has arrived: {OneTimePassword}. Do not disclose it to anyone.",
+  "ContactVerificationPhone_Subject": "Phone number verification",
+  "Cordially": "Cordially,",
+  "Hello": "Hello {name}!",
+  "MultiFactorAuthenticationEmail_Content": "Your one-time code has arrived. Do not disclose it to anyone.",
+  "MultiFactorAuthenticationEmail_Subject": "Access your account",
+  "MultiFactorAuthenticationPhone_Content": "Your one-time code has arrived: {OneTimePassword}. Do not disclose it to anyone.",
+  "MultiFactorAuthenticationPhone_Subject": "Access your account",
+  "Team": "The Logitar Team"
+}

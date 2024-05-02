@@ -30,9 +30,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{01817770
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.IntegrationTests", "tests\Logitar.Master.IntegrationTests\Logitar.Master.IntegrationTests.csproj", "{1ED47AD8-2738-47A2-A39C-422DB09953C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Application.UnitTests", "tests\Logitar.Master.Application.UnitTests\Logitar.Master.Application.UnitTests.csproj", "{A88235DD-8A9C-4E58-88DF-2C0ED0F96C60}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.Application.UnitTests", "tests\Logitar.Master.Application.UnitTests\Logitar.Master.Application.UnitTests.csproj", "{A88235DD-8A9C-4E58-88DF-2C0ED0F96C60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.Tests", "tests\Logitar.Master.Tests\Logitar.Master.Tests.csproj", "{B83E66B3-FC15-4900-B966-85F44D47F784}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logitar.Master.Tests", "tests\Logitar.Master.Tests\Logitar.Master.Tests.csproj", "{B83E66B3-FC15-4900-B966-85F44D47F784}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{9B475D83-5980-4A48-BB50-65DE79FD56A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitar.Master.PortalSeeding.Worker", "tools\Logitar.Master.PortalSeeding.Worker\Logitar.Master.PortalSeeding.Worker.csproj", "{20D21B84-F5E4-4E01-ACE8-C5A8FB1AC154}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +84,10 @@ Global
 		{B83E66B3-FC15-4900-B966-85F44D47F784}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B83E66B3-FC15-4900-B966-85F44D47F784}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B83E66B3-FC15-4900-B966-85F44D47F784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20D21B84-F5E4-4E01-ACE8-C5A8FB1AC154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20D21B84-F5E4-4E01-ACE8-C5A8FB1AC154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20D21B84-F5E4-4E01-ACE8-C5A8FB1AC154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20D21B84-F5E4-4E01-ACE8-C5A8FB1AC154}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +96,7 @@ Global
 		{1ED47AD8-2738-47A2-A39C-422DB09953C7} = {01817770-861B-453F-A98F-E42840A5E16F}
 		{A88235DD-8A9C-4E58-88DF-2C0ED0F96C60} = {01817770-861B-453F-A98F-E42840A5E16F}
 		{B83E66B3-FC15-4900-B966-85F44D47F784} = {01817770-861B-453F-A98F-E42840A5E16F}
+		{20D21B84-F5E4-4E01-ACE8-C5A8FB1AC154} = {9B475D83-5980-4A48-BB50-65DE79FD56A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EF5DF67-96A3-4877-949F-E046443F9E9A}
