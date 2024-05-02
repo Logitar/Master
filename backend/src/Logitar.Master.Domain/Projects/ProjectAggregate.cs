@@ -1,7 +1,7 @@
 ﻿using Logitar.EventSourcing;
+using Logitar.Identity.Domain.Shared;
 using Logitar.Master.Contracts;
 using Logitar.Master.Domain.Projects.Events;
-using Logitar.Master.Domain.Shared;
 
 namespace Logitar.Master.Domain.Projects;
 

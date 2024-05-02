@@ -1,5 +1,5 @@
-﻿using Logitar.Master.Domain.Projects;
-using Logitar.Master.Domain.Shared;
+﻿using Logitar.Identity.Domain.Shared;
+using Logitar.Master.Domain.Projects;
 using Logitar.Master.EntityFrameworkCore.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

@@ -1,4 +1,3 @@
-version: '3.8'
 name: logitar_master
 services:
   logitar_master_mssql:
