@@ -40,4 +40,10 @@ internal class SessionService : ISessionService
     RequestContext context = new(user.Id.ToString(), cancellationToken);
     return await _sessionClient.SignInAsync(payload, context);
   }
+
+  public async Task<Session?> SignOutAsync(Guid id, CancellationToken cancellationToken)
+  {
+    RequestContext context = new(cancellationToken);
+    return await _sessionClient.SignOutAsync(id, context);
+  }
 }

@@ -38,6 +38,28 @@ public class AccountController : ControllerBase
     return Ok(new SignInResponse(result));
   }
 
+  [HttpPost("/auth/sign/out")]
+  [Authorize]
+  public async Task<ActionResult> SignOutAsync(bool everywhere, CancellationToken cancellationToken)
+  {
+    Session? session = HttpContext.GetSession();
+    User? user = HttpContext.GetUser();
+    if (everywhere && user != null)
+    {
+      SignOutCommand command = new(user);
+      await _requestPipeline.ExecuteAsync(command, cancellationToken);
+    }
+    else if (!everywhere && session != null)
+    {
+      SignOutCommand command = new(session);
+      await _requestPipeline.ExecuteAsync(command, cancellationToken);
+    }
+
+    HttpContext.SignOut();
+
+    return NoContent();
+  }
+
   [HttpPost("/auth/token")]
   public async Task<ActionResult<GetTokenResponse>> TokenAsync([FromBody] GetTokenPayload payload, CancellationToken cancellationToken)
   {
