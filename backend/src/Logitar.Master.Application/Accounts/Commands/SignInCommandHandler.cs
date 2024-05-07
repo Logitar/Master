@@ -1,9 +1,12 @@
-﻿using Logitar.Master.Application.Accounts.Events;
+﻿using FluentValidation;
+using Logitar.Master.Application.Accounts.Events;
+using Logitar.Master.Application.Accounts.Validators;
 using Logitar.Master.Application.Constants;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
 using Logitar.Portal.Contracts.Passwords;
+using Logitar.Portal.Contracts.Realms;
 using Logitar.Portal.Contracts.Sessions;
 using Logitar.Portal.Contracts.Tokens;
 using Logitar.Portal.Contracts.Users;
@@ -16,16 +19,18 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
   private readonly IMessageService _messageService;
   private readonly IOneTimePasswordService _oneTimePasswordService;
   private readonly IPublisher _publisher;
+  private readonly IRealmService _realmService;
   private readonly ISessionService _sessionService;
   private readonly ITokenService _tokenService;
   private readonly IUserService _userService;
 
   public SignInCommandHandler(IMessageService messageService, IOneTimePasswordService oneTimePasswordService,
-    IPublisher publisher, ISessionService sessionService, ITokenService tokenService, IUserService userService)
+    IPublisher publisher, IRealmService realmService, ISessionService sessionService, ITokenService tokenService, IUserService userService)
   {
     _messageService = messageService;
     _oneTimePasswordService = oneTimePasswordService;
     _publisher = publisher;
+    _realmService = realmService;
     _sessionService = sessionService;
     _tokenService = tokenService;
     _userService = userService;
@@ -33,7 +38,10 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
 
   public async Task<SignInCommandResult> Handle(SignInCommand command, CancellationToken cancellationToken)
   {
+    Realm realm = await _realmService.FindAsync(cancellationToken);
+
     SignInPayload payload = command.Payload;
+    new SignInValidator(realm.PasswordSettings).ValidateAndThrow(payload);
 
     if (payload.Credentials != null)
     {

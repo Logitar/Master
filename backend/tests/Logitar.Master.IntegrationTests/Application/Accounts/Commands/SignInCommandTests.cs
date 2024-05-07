@@ -1,4 +1,5 @@
-﻿using Logitar.Master.Application.Constants;
+﻿using FluentValidation.Results;
+using Logitar.Master.Application.Constants;
 using Logitar.Master.Contracts.Accounts;
 using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Messages;
@@ -434,6 +435,17 @@ public class SignInCommandTests : IntegrationTests
     SignInCommandResult result = await Pipeline.ExecuteAsync(command, CancellationToken);
 
     Assert.Same(session, result.Session);
+  }
+
+  [Fact(DisplayName = "It should throw ValidationException when the payload is not valid.")]
+  public async Task It_should_throw_ValidationException_when_the_payload_is_not_valid()
+  {
+    SignInPayload payload = new("fr");
+    SignInCommand command = new(payload, CustomAttributes: []);
+    var exception = await Assert.ThrowsAsync<FluentValidation.ValidationException>(async () => await Pipeline.ExecuteAsync(command, CancellationToken));
+
+    ValidationFailure error = Assert.Single(exception.Errors);
+    Assert.Equal("SignInValidator", error.ErrorCode);
   }
 
   [Fact(DisplayName = "It should update the user email and require to complete the user profile (AuthenticationToken).")]

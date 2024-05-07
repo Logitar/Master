@@ -10,7 +10,9 @@ using Logitar.Master.EntityFrameworkCore.Entities;
 using Logitar.Master.EntityFrameworkCore.SqlServer;
 using Logitar.Master.Infrastructure;
 using Logitar.Master.Infrastructure.Commands;
+using Logitar.Portal.Contracts;
 using Logitar.Portal.Contracts.Actors;
+using Logitar.Portal.Contracts.Realms;
 using Logitar.Portal.Contracts.Users;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -36,8 +38,10 @@ public abstract class IntegrationTests : IAsyncLifetime
 
   protected IRequestPipeline Pipeline { get; }
 
+  protected Mock<IApiKeyService> ApiKeyService { get; } = new();
   protected Mock<IMessageService> MessageService { get; } = new();
   protected Mock<IOneTimePasswordService> OneTimePasswordService { get; } = new();
+  protected Mock<IRealmService> RealmService { get; } = new();
   protected Mock<ISessionService> SessionService { get; } = new();
   protected Mock<ITokenService> TokenService { get; } = new();
   protected Mock<IUserService> UserService { get; } = new();
@@ -68,8 +72,10 @@ public abstract class IntegrationTests : IAsyncLifetime
         throw new DatabaseProviderNotSupportedException(_databaseProvider);
     }
 
+    services.AddSingleton(ApiKeyService.Object);
     services.AddSingleton(MessageService.Object);
     services.AddSingleton(OneTimePasswordService.Object);
+    services.AddSingleton(RealmService.Object);
     services.AddSingleton(SessionService.Object);
     services.AddSingleton(TokenService.Object);
     services.AddSingleton(UserService.Object);
@@ -80,6 +86,14 @@ public abstract class IntegrationTests : IAsyncLifetime
     MasterContext = ServiceProvider.GetRequiredService<MasterContext>();
 
     Pipeline = ServiceProvider.GetRequiredService<IRequestPipeline>();
+
+    Realm realm = new("skillcraftrpg", "cz[ySe2#xrq-aKWFQP$m58@U9&4Xk'tJ")
+    {
+      DisplayName = "SkillCraftRPG",
+      DefaultLocale = new Locale("fr"),
+      Url = "https://app.skillcraftrpg.ca/"
+    };
+    RealmService.Setup(x => x.FindAsync(CancellationToken)).ReturnsAsync(realm);
 
     DateTime now = DateTime.Now;
     User user = new(Faker.Person.UserName)
@@ -95,7 +109,8 @@ public abstract class IntegrationTests : IAsyncLifetime
       Birthdate = Faker.Person.DateOfBirth,
       Gender = Faker.Person.Gender.ToString().ToLower(),
       Picture = Faker.Person.Avatar,
-      Website = $"https://www.{Faker.Person.Website}"
+      Website = $"https://www.{Faker.Person.Website}",
+      Realm = realm
     };
     Actor = new(user);
     user.CreatedBy = Actor;
