@@ -59,10 +59,10 @@ internal class UserService : IUserService
     return await _userClient.ReadAsync(id: null, uniqueName, identifier: null, context);
   }
 
-  public async Task<User?> FindAsync(Guid id, CancellationToken cancellationToken)
+  public async Task<User?> FindAsync(Guid userId, CancellationToken cancellationToken)
   {
     RequestContext context = new(cancellationToken);
-    return await _userClient.ReadAsync(id, uniqueName: null, identifier: null, context);
+    return await _userClient.ReadAsync(userId, uniqueName: null, identifier: null, context);
   }
 
   public async Task<User> SaveProfileAsync(Guid userId, SaveProfilePayload profile, CancellationToken cancellationToken)
@@ -70,6 +70,12 @@ internal class UserService : IUserService
     UpdateUserPayload payload = profile.ToUpdateUserPayload();
     RequestContext context = new(userId.ToString(), cancellationToken);
     return await _userClient.UpdateAsync(userId, payload, context) ?? throw new InvalidOperationException($"The user 'Id={userId}' could not be found.");
+  }
+
+  public async Task<User?> SignOutAsync(Guid userId, CancellationToken cancellationToken)
+  {
+    RequestContext context = new(userId.ToString(), cancellationToken);
+    return await _userClient.SignOutAsync(userId, context);
   }
 
   public async Task<User> UpdateEmailAsync(Guid userId, Email email, CancellationToken cancellationToken)
