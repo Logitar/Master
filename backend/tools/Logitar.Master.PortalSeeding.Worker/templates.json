@@ -18,5 +18,10 @@
     "UniqueKey": "MultiFactorAuthenticationPhone",
     "DisplayName": "Multi-Factor Authentication (Phone)",
     "Description": "This is the phone multi-factor authentication template."
+  },
+  {
+    "UniqueKey": "PasswordRecovery",
+    "DisplayName": "Password Recovery",
+    "Description": "This is the password recovery email template."
   }
 ]

@@ -85,6 +85,18 @@ public class AccountController : ControllerBase
     return Ok(response);
   }
 
+  [HttpPost("password/reset")]
+  public async Task<ActionResult<ResetPasswordResponse>> ResetPasswordAsync([FromBody] ResetPasswordPayload payload, CancellationToken cancellationToken)
+  {
+    ResetPasswordResult result = await _requestPipeline.ExecuteAsync(new ResetPasswordCommand(payload, HttpContext.GetSessionCustomAttributes()), cancellationToken);
+    if (result.Session != null)
+    {
+      HttpContext.SignIn(result.Session);
+    }
+
+    return Ok(new ResetPasswordResponse(result));
+  }
+
   [HttpPut("/phone/change")]
   [Authorize]
   public async Task<ActionResult<ChangePhoneResult>> ChangePhoneAsync([FromBody] ChangePhonePayload payload, CancellationToken cancellationToken)

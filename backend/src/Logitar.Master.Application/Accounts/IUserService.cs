@@ -11,6 +11,7 @@ public interface IUserService
   Task<User> CreateAsync(Email email, CancellationToken cancellationToken = default);
   Task<User?> FindAsync(string uniqueName, CancellationToken cancellationToken = default);
   Task<User?> FindAsync(Guid userId, CancellationToken cancellationToken = default);
+  Task<User> ResetPasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken = default);
   Task<User> SaveProfileAsync(Guid userId, SaveProfilePayload payload, CancellationToken cancellationToken = default);
   Task<User?> SignOutAsync(Guid userId, CancellationToken cancellationToken = default);
   Task<User> UpdateEmailAsync(Guid userId, Email email, CancellationToken cancellationToken = default);
