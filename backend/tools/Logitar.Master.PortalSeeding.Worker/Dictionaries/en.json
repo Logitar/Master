@@ -10,6 +10,8 @@
   "MultiFactorAuthenticationEmail_Subject": "Access your account",
   "MultiFactorAuthenticationPhone_Content": "Your one-time code has arrived: {OneTimePassword}. Do not disclose it to anyone.",
   "MultiFactorAuthenticationPhone_Subject": "Access your account",
+  "PasswordRecovery_ClickLink": "If that someone is you, click the link below to reset your password.",
+  "PasswordRecovery_Reason": "You received this message since someone requested to reset your password.",
   "PasswordRecovery_Subject": "Reset your password",
   "Team": "The Logitar Team"
 }

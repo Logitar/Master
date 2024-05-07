@@ -22,6 +22,7 @@
     <None Remove="Templates\ContactVerificationPhone.txt" />
     <None Remove="Templates\MultiFactorAuthenticationEmail.html" />
     <None Remove="Templates\MultiFactorAuthenticationPhone.txt" />
+    <None Remove="Templates\PasswordRecovery.html" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +36,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\MultiFactorAuthenticationPhone.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\PasswordRecovery.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -10,6 +10,8 @@
   "MultiFactorAuthenticationEmail_Subject": "Accédez à votre compte",
   "MultiFactorAuthenticationPhone_Content": "Votre code à usage unique est arrivé : {OneTimePassword}. Ne le divulguez à personne.",
   "MultiFactorAuthenticationPhone_Subject": "Accédez à votre compte",
+  "PasswordRecovery_ClickLink": "S’il s’agit bien de vous, cliquez sur le lien ci-dessous afin de réinitialiser votre mot de passe.",
+  "PasswordRecovery_Reason": "Vous avez reçu ce courriel puisque quelqu’un a demandé à réinitialiser votre mot de passe.",
   "PasswordRecovery_Subject": "Réinitialisez votre mot de passe",
   "Team": "L’équipe Logitar"
 }
