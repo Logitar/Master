@@ -224,7 +224,7 @@ public class SignInCommandTests : IntegrationTests
     OneTimePasswordService.Setup(x => x.CreateAsync(user, "MultiFactorAuthentication", CancellationToken)).ReturnsAsync(oneTimePassword);
 
     SentMessages sentMessages = new([Guid.NewGuid()]);
-    MessageService.Setup(x => x.SendAsync("MultiFactorAuthenticationEmail", user, payload.Locale,
+    MessageService.Setup(x => x.SendAsync("MultiFactorAuthenticationEmail", user, ContactType.Email, payload.Locale,
       It.Is<Dictionary<string, string>>(v => v.Count == 1 && v["OneTimePassword"] == oneTimePassword.Password), CancellationToken)
     ).ReturnsAsync(sentMessages);
 
@@ -262,7 +262,7 @@ public class SignInCommandTests : IntegrationTests
     OneTimePasswordService.Setup(x => x.CreateAsync(user, "MultiFactorAuthentication", CancellationToken)).ReturnsAsync(oneTimePassword);
 
     SentMessages sentMessages = new([Guid.NewGuid()]);
-    MessageService.Setup(x => x.SendAsync("MultiFactorAuthenticationPhone", user, payload.Locale,
+    MessageService.Setup(x => x.SendAsync("MultiFactorAuthenticationPhone", user, ContactType.Phone, payload.Locale,
       It.Is<Dictionary<string, string>>(v => v.Count == 1 && v["OneTimePassword"] == oneTimePassword.Password), CancellationToken)
     ).ReturnsAsync(sentMessages);
 
@@ -320,7 +320,7 @@ public class SignInCommandTests : IntegrationTests
     };
 
     SentMessages sentMessages = new([Guid.NewGuid()]);
-    MessageService.Setup(x => x.SendAsync("AccountAuthentication", user, payload.Locale,
+    MessageService.Setup(x => x.SendAsync("AccountAuthentication", user, ContactType.Email, payload.Locale,
       It.Is<Dictionary<string, string>>(v => v.Count == 1 && v["Token"] == createdToken.Token), CancellationToken)
     ).ReturnsAsync(sentMessages);
 

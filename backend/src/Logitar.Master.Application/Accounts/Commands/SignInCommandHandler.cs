@@ -76,7 +76,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       };
       SentMessages sentMessages = user == null
         ? await _messageService.SendAsync(Templates.AccountAuthentication, email, locale, variables, cancellationToken)
-        : await _messageService.SendAsync(Templates.AccountAuthentication, user, locale, variables, cancellationToken);
+        : await _messageService.SendAsync(Templates.AccountAuthentication, user, ContactType.Email, locale, variables, cancellationToken);
       SentMessage sentMessage = sentMessages.ToSentMessage(email);
       return SignInCommandResult.AuthenticationLinkSent(sentMessage);
     }
@@ -122,7 +122,7 @@ internal class SignInCommandHandler : IRequestHandler<SignInCommand, SignInComma
       ["OneTimePassword"] = oneTimePassword.Password
     };
     string template = Templates.GetMultiFactorAuthentication(contactType);
-    SentMessages sentMessages = await _messageService.SendAsync(template, user, locale, variables, cancellationToken);
+    SentMessages sentMessages = await _messageService.SendAsync(template, user, contactType, locale, variables, cancellationToken);
     SentMessage sentMessage = sentMessages.ToSentMessage(contact);
     return SignInCommandResult.RequireOneTimePasswordValidation(oneTimePassword, sentMessage);
   }
