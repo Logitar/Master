@@ -198,7 +198,7 @@ public class SignInCommandTests : IntegrationTests
     Assert.Equal(createdToken.Token, result.ProfileCompletionToken);
   }
 
-  [Fact(DisplayName = "It should send a Multi Factor Authentication email message.")]
+  [Fact(DisplayName = "It should send a Multi-Factor Authentication email message.")]
   public async Task It_should_send_a_Multi_Factor_Authentication_email_message()
   {
     User user = new(Faker.Person.Email)
@@ -236,7 +236,7 @@ public class SignInCommandTests : IntegrationTests
     Assert.Equal(sentMessages.ToSentMessage(user.Email), result.OneTimePasswordValidation.SentMessage);
   }
 
-  [Fact(DisplayName = "It should send a Multi Factor Authentication SMS message.")]
+  [Fact(DisplayName = "It should send a Multi-Factor Authentication SMS message.")]
   public async Task It_should_send_a_Multi_Factor_Authentication_Sms_message()
   {
     User user = new(Faker.Person.Email)
