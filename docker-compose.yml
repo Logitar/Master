@@ -1,5 +1,15 @@
 name: logitar_master
 services:
+  logitar_master_mongo:
+    image: mongo
+    container_name: Logitar.Master_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: master
+      MONGO_INITDB_ROOT_PASSWORD: KrVZG2cA5QCv63mF
+    ports:
+      - 27031:27017
+
   logitar_master_mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: Logitar.Master_mssql
@@ -10,18 +20,44 @@ services:
     ports:
       - 1441:1433
 
+  logitar_master_postgres:
+    image: postgres
+    container_name: Logitar.Master_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: sqjVfRHxXQm5yL3C
+    ports:
+      - 5441:5432
+
   logitar_master_portal:
     image: fpion/portal:v4.1.0
     container_name: Logitar.Master_portal
     depends_on:
+      - logitar_master_mongo
       - logitar_master_mssql
+      - logitar_master_postgres
     restart: unless-stopped
     environment:
       EnableBasicAuthentication: "true"
       EnableMigrations: "true"
+      MongoDB:ConnectionString: mongodb://master:KrVZG2cA5QCv63mF@logitar_master_mongo:27017/
+      POSTGRESQLCONNSTR_Portal: "User ID=postgres;Password=sqjVfRHxXQm5yL3C;Host=logitar_master_postgres;Port=5432;Database=Portal;"
       SQLCONNSTR_Portal: "Server=logitar_master_mssql;Database=Portal;User Id=SA;Password=Y2tk8H5vxZQfhDTP;Persist Security Info=False;Encrypt=False;"
     ports:
       - 8891:8080
+
+  logitar_master_seeding:
+    build:
+      context: ./backend
+      dockerfile: /tools/Logitar.Master.PortalSeeding.Worker/Dockerfile
+    image: logitar_master_seeding
+    container_name: Logitar.Master.PortalSeeding.Worker_seeding
+    depends_on:
+      - logitar_master_portal
+    restart: unless-stopped
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      Portal:BaseUrl: http://logitar_master_portal:8080
 
   logitar_master_backend:
     build:
@@ -30,11 +66,14 @@ services:
     image: logitar_master_backend
     container_name: Logitar.Master_backend
     depends_on:
+      - logitar_master_mongo
       - logitar_master_mssql
+      - logitar_master_postgres
     restart: unless-stopped
     environment:
       ASPNETCORE_Environment: Development
       Portal:BaseUrl: http://logitar_master_portal:8080
+      POSTGRESQLCONNSTR_Master: "User ID=postgres;Password=sqjVfRHxXQm5yL3C;Host=logitar_master_postgres;Port=5432;Database=Master;"
       SQLCONNSTR_Master: "Server=logitar_master_mssql;Database=Master;User Id=SA;Password=Y2tk8H5vxZQfhDTP;Persist Security Info=False;Encrypt=False;"
     ports:
       - 8091:8080
